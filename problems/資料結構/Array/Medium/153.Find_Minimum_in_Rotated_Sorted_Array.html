@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Find Minimum in Rotated Sorted Array 視覺化</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f5f7fa; }
+    h1 { text-align: center; color: #007acc; }
+    .description {
+      max-width: 800px;
+      margin: 1rem auto;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .tip {
+      background: #fff8dc;
+      padding: 1rem;
+      margin-top: 1rem;
+      border-left: 5px solid #f39c12;
+      font-size: 14px;
+    }
+    .array {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .element {
+      position: relative;
+      margin: 6px;
+      padding: 12px 16px;
+      background: #3498db;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+    .highlight {
+      background: #2ecc71 !important;
+    }
+    .pointer {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .left { background: #2ecc71; }
+    .mid { background: #f1c40f; }
+    .right { background: #e74c3c; }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code { background: #444; color: white; }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 800px;
+      margin: 2rem auto;
+    }
+    .status {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 18px;
+    }
+    .status span {
+      font-weight: bold;
+      color: #e67e22;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+<h1>Find Minimum in Rotated Sorted Array 視覺化</h1>
+
+<div class="description">
+  <p><strong>題目描述：</strong> 給定一個已排序但旋轉的整數陣列 <code>nums</code>，找出其中的最小元素。</p>
+  <p><strong>要求：</strong> 使用 O(log n) 的時間複雜度。</p>
+  <div class="tip">
+    📌 <strong>技巧提示：</strong><br>
+    若目標為明確數值（如：找 target），可使用 <code>while (l &le; r)</code><br>
+    若目標為<strong>模糊極值</strong>（如：最小值、最大值、臨界點），建議使用 <code>while (l &lt; r)</code>，避免無限循環並保證範圍收斂至一點。
+  </div>
+</div>
+
+<div style="text-align:center;">
+  <label>輸入陣列：<input id="inputArr" value="4,5,6,7,0,1,2" size="40"></label>
+  <button onclick="start()">開始模擬</button>
+</div>
+
+<div class="array" id="arrayBox"></div>
+
+<div class="status">
+  left: <span id="leftIdx">0</span> |
+  mid: <span id="midIdx">0</span> |
+  right: <span id="rightIdx">0</span>
+</div>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">1: l, r = 0, len(nums) - 1</div>
+  <div class="code-line" id="c2">2: while l &lt; r:</div>
+  <div class="code-line" id="c3">3: &nbsp;&nbsp;mid = (l + r) // 2</div>
+  <div class="code-line" id="c4">4: &nbsp;&nbsp;if nums[mid] &gt; nums[r]: l = mid + 1</div>
+  <div class="code-line" id="c5">5: &nbsp;&nbsp;else: r = mid</div>
+  <div class="code-line" id="c6">6: return nums[l]</div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="step()">下一步</button>
+  <button onclick="reset()">重置</button>
+</div>
+
+<div class="description">
+  <h3>⏱ 時間與空間複雜度</h3>
+  <table border="1" cellpadding="8" style="margin:auto; border-collapse: collapse;">
+    <tr><th>方法</th><th>時間複雜度</th><th>空間複雜度</th></tr>
+    <tr><td>Binary Search</td><td>O(log n)</td><td>O(1)</td></tr>
+  </table>
+</div>
+
+<script>
+let nums = [], l = 0, r = 0, mid = 0;
+let started = false;
+
+function start() {
+  nums = document.getElementById("inputArr").value.split(',').map(Number);
+  l = 0;
+  r = nums.length - 1;
+  mid = 0;
+  started = true;
+  highlight("c1");
+  render();
+  updateStatus();
+}
+
+function reset() {
+  document.getElementById("inputArr").value = "4,5,6,7,0,1,2";
+  start();
+}
+
+function step() {
+  if (!started || l >= r) {
+    highlight("c6");
+    return;
+  }
+
+  highlight("c2");
+  mid = Math.floor((l + r) / 2);
+  highlight("c3");
+
+  if (nums[mid] > nums[r]) {
+    highlight("c4");
+    l = mid + 1;
+  } else {
+    highlight("c5");
+    r = mid;
+  }
+
+  updateStatus();
+  render();
+}
+
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(l => l.classList.remove("active-code"));
+  if (id) document.getElementById(id).classList.add("active-code");
+}
+
+function updateStatus() {
+  document.getElementById("leftIdx").innerText = l;
+  document.getElementById("midIdx").innerText = mid;
+  document.getElementById("rightIdx").innerText = r;
+}
+
+function render() {
+  const area = document.getElementById("arrayBox");
+  area.innerHTML = "";
+
+  for (let i = 0; i < nums.length; i++) {
+    const el = document.createElement("div");
+    el.className = "element";
+    el.innerText = nums[i];
+
+    if (i === l) {
+      const p = document.createElement("div");
+      p.className = "pointer left";
+      p.innerText = "L";
+      el.appendChild(p);
+    }
+    if (i === mid) {
+      const p = document.createElement("div");
+      p.className = "pointer mid";
+      p.innerText = "M";
+      el.appendChild(p);
+    }
+    if (i === r) {
+      const p = document.createElement("div");
+      p.className = "pointer right";
+      p.innerText = "R";
+      el.appendChild(p);
+    }
+
+    area.appendChild(el);
+  }
+}
+</script>
+</body>
+</html>

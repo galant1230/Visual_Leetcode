@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>📌 Encode and Decode Strings 視覺化</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; padding: 2rem; background: #f8f9fa; }
+    h1, h2 { color: #2c3e50; }
+    code, pre { background: #ecf0f1; padding: 0.5rem; border-radius: 6px; display: block; white-space: pre-wrap; }
+    .highlight { background: #ffeaa7; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 8px 12px; border: 1px solid #ccc; text-align: left; }
+    .pointer-box { display: flex; justify-content: center; margin-top: 1rem; font-family: monospace; font-size: 18px; }
+    .char { padding: 0.3rem 0.5rem; border-bottom: 2px solid #ccc; margin: 0 2px; position: relative; }
+    .slow { border-bottom: 3px solid #27ae60; }
+    .fast { border-bottom: 3px solid #e74c3c; }
+  </style>
+</head>
+<body>
+
+<h1>📌 Encode and Decode Strings</h1>
+
+<h2>🔹 題目描述</h2>
+<p>設計一個演算法來：</p>
+<ul>
+  <li><strong>編碼 (encode)</strong>：將字串列表轉換成單一字串，以便傳輸或儲存。</li>
+  <li><strong>解碼 (decode)</strong>：從單一字串還原回字串列表。</li>
+</ul>
+
+<h2>🔹 範例</h2>
+<pre><code>Input:  ["neet", "code", "love", "you"]
+Output: ["neet", "code", "love", "you"]
+</code></pre>
+
+<h2>💡 解法與思路</h2>
+<p>使用「長度前綴」+ 特殊字元 <code>#</code> 當分隔符，來避免內容中有特殊字元混淆：</p>
+<ul>
+  <li>encode：將每個字串轉為 <code>長度#字串</code></li>
+  <li>decode：用快慢指針找出 <code>#</code>，再根據長度切出子字串</li>
+</ul>
+
+<h2>🧠 Python 實作</h2>
+<pre><code class="language-python">class Solution:
+    def encode(self, strs):
+        res = ""
+        for s in strs:
+            res += str(len(s)) + "#" + s
+        return res
+
+    def decode(self, s):
+        res, i = [], 0
+        while i < len(s):
+            j = i
+            while s[j] != "#":
+                j += 1
+            length = int(s[i:j])
+            res.append(s[j + 1: j + 1 + length])
+            i = j + 1 + length
+        return res
+</code></pre>
+
+<h2>⏱ 時間與空間複雜度</h2>
+<table>
+  <tr><th>操作</th><th>時間複雜度</th><th>空間複雜度</th></tr>
+  <tr><td>encode</td><td>O(n)</td><td>O(n)</td></tr>
+  <tr><td>decode</td><td>O(n)</td><td>O(n)</td></tr>
+</table>
+
+<h2>✅ Tips</h2>
+<ul>
+  <li>必須處理空字串與含 <code>#</code> 的情況，因此使用長度前綴最安全</li>
+  <li>decode 過程中要用兩個指標 (slow/fast) 找出 <code>#</code> 的位置</li>
+</ul>
+
+<h2>🔍 視覺化 decode（快慢指針）</h2>
+<div class="pointer-box" id="decodeArea"></div>
+<p style="text-align:center;">
+  <button onclick="nextStep()">下一步</button>
+</p>
+
+<script>
+const encodedStr = "4#neet4#code4#love3#you";
+let slow = 0, fast = 0;
+
+function renderDecode() {
+  const area = document.getElementById("decodeArea");
+  area.innerHTML = "";
+  for (let i = 0; i < encodedStr.length; i++) {
+    const span = document.createElement("span");
+    span.className = "char";
+    if (i === slow) span.classList.add("slow");
+    if (i === fast) span.classList.add("fast");
+    span.textContent = encodedStr[i];
+    area.appendChild(span);
+  }
+}
+
+function nextStep() {
+  if (fast >= encodedStr.length) return;
+  if (encodedStr[fast] !== "#") {
+    fast++;
+  } else {
+    const len = parseInt(encodedStr.slice(slow, fast));
+    slow = fast + 1 + len;
+    fast = slow;
+  }
+  renderDecode();
+}
+
+window.onload = renderDecode;
+</script>
+
+</body>
+</html>

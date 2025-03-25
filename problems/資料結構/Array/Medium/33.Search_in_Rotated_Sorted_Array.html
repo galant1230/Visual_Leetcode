@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Search in Rotated Sorted Array 視覺化</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f5f7fa; }
+    h1 { text-align: center; color: #007acc; }
+    .description {
+      max-width: 800px;
+      margin: 1rem auto;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .array {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .element {
+      position: relative;
+      margin: 6px;
+      padding: 12px 16px;
+      background: #3498db;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+    .pointer {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .left { background: #2ecc71; }
+    .mid { background: #f1c40f; }
+    .right { background: #e74c3c; }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code { background: #444; color: white; }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 800px;
+      margin: 2rem auto;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+<h1>Search in Rotated Sorted Array 視覺化</h1>
+
+<div class="description">
+  <p>在旋轉排序陣列中使用二分搜尋尋找 target，保持 O(log n) 複雜度。</p>
+</div>
+
+<div style="text-align:center;">
+  <label>輸入陣列：<input id="inputArr" value="4,5,6,7,0,1,2" size="30"></label>
+  <label>target = <input id="inputTarget" value="0" size="4"></label>
+  <button onclick="start()">開始模擬</button>
+</div>
+
+<div class="array" id="arrayBox"></div>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">1: left, right = 0, len(nums) - 1</div>
+  <div class="code-line" id="c2">2: while left <= right:</div>
+  <div class="code-line" id="c3">3: &nbsp;&nbsp;mid = (left + right) // 2</div>
+  <div class="code-line" id="c4">4: &nbsp;&nbsp;if nums[mid] == target: return mid</div>
+  <div class="code-line" id="c5">5: &nbsp;&nbsp;if nums[left] <= nums[mid]:</div>
+  <div class="code-line" id="c6">6: &nbsp;&nbsp;&nbsp;&nbsp;if nums[left] <= target < nums[mid]:</div>
+  <div class="code-line" id="c7">7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right = mid - 1</div>
+  <div class="code-line" id="c8">8: &nbsp;&nbsp;&nbsp;&nbsp;else: left = mid + 1</div>
+  <div class="code-line" id="c9">9: &nbsp;&nbsp;else:</div>
+  <div class="code-line" id="c10">10: &nbsp;&nbsp;&nbsp;&nbsp;if nums[mid] < target <= nums[right]:</div>
+  <div class="code-line" id="c11">11: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left = mid + 1</div>
+  <div class="code-line" id="c12">12: &nbsp;&nbsp;&nbsp;&nbsp;else: right = mid - 1</div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="step()">下一步</button>
+  <button onclick="reset()">重置</button>
+</div>
+
+<script>
+let nums = [], target = 0, left = 0, right = 0, mid = 0;
+let stepCount = 0;
+
+function start() {
+  nums = document.getElementById("inputArr").value.split(',').map(Number);
+  target = parseInt(document.getElementById("inputTarget").value);
+  left = 0;
+  right = nums.length - 1;
+  stepCount = 0;
+  highlight("c1");
+  render();
+}
+
+function reset() {
+  document.getElementById("inputArr").value = "4,5,6,7,0,1,2";
+  document.getElementById("inputTarget").value = "0";
+  start();
+}
+
+function step() {
+  if (left > right) {
+    highlight(null);
+    return;
+  }
+
+  highlight("c2");
+  mid = Math.floor((left + right) / 2);
+  highlight("c3");
+
+  if (nums[mid] === target) {
+    highlight("c4");
+    left = mid; right = mid; // freeze
+  } else if (nums[left] <= nums[mid]) {
+    highlight("c5");
+    if (nums[left] <= target && target < nums[mid]) {
+      highlight("c6"); highlight("c7");
+      right = mid - 1;
+    } else {
+      highlight("c8");
+      left = mid + 1;
+    }
+  } else {
+    highlight("c9");
+    if (nums[mid] < target && target <= nums[right]) {
+      highlight("c10"); highlight("c11");
+      left = mid + 1;
+    } else {
+      highlight("c12");
+      right = mid - 1;
+    }
+  }
+
+  render();
+}
+
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(l => l.classList.remove("active-code"));
+  if (id) document.getElementById(id).classList.add("active-code");
+}
+
+function render() {
+  const area = document.getElementById("arrayBox");
+  area.innerHTML = "";
+
+  for (let i = 0; i < nums.length; i++) {
+    const el = document.createElement("div");
+    el.className = "element";
+    el.innerText = nums[i];
+
+    if (i === left) {
+      const p = document.createElement("div");
+      p.className = "pointer left";
+      p.innerText = "left";
+      el.appendChild(p);
+    }
+    if (i === mid) {
+      const p = document.createElement("div");
+      p.className = "pointer mid";
+      p.innerText = "mid";
+      el.appendChild(p);
+    }
+    if (i === right) {
+      const p = document.createElement("div");
+      p.className = "pointer right";
+      p.innerText = "right";
+      el.appendChild(p);
+    }
+
+    area.appendChild(el);
+  }
+}
+
+start();
+</script>
+</body>
+</html>
+
+
+

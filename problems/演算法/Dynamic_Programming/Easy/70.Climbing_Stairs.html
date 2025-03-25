@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Climbing Stairs DP Visualization (Interactive)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    .dp-box {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 2rem 0;
+    }
+    .dp-cell {
+      width: 50px;
+      height: 50px;
+      background: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      border-radius: 6px;
+      position: relative;
+    }
+    .dp-cell.active {
+      background: #3498db;
+      color: #fff;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      text-align: left;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 800px;
+      margin: 2rem auto;
+    }
+    .code-line {
+      padding: 2px 0;
+    }
+    .active-code {
+      background-color: #444;
+    }
+    #controls {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    #controls input {
+      width: 60px;
+      font-size: 1rem;
+      padding: 4px;
+    }
+    #controls button {
+      padding: 6px 12px;
+      margin-left: 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🚶‍♂️ 題目敘述：70. 爬樓梯 (Climbing Stairs)</h2>
+<p>你正在爬一座樓梯。需要 <code>n</code> 步你才能到達樓頂。</p>
+<p>每次你可以爬 1 步或 2 步。你有多少種不同的方法可以爬到樓頂？</p>
+
+<h3>🧪 範例</h3>
+<ul>
+  <li><strong>輸入：</strong> n = 2<br><strong>輸出：</strong> 2<br>解釋：1+1 或 2</li>
+  <li><strong>輸入：</strong> n = 3<br><strong>輸出：</strong> 3<br>解釋：1+1+1、1+2、2+1</li>
+</ul>
+
+<h3>📌 限制條件：</h3>
+<ul>
+  <li>1 &lt;= n &lt;= 45</li>
+</ul>
+
+<h3>🧠 解題思路：費波那契數列</h3>
+<p>當你走到第 <code>n</code> 階時，其實只有兩種情況：</p>
+<ul>
+  <li>你是從第 <code>n - 1</code> 階走一步上來的</li>
+  <li>你是從第 <code>n - 2</code> 階走兩步上來的</li>
+</ul>
+<p>也就是說：</p>
+<pre><code>f(n) = f(n - 1) + f(n - 2)</code></pre>
+<p>初始條件：</p>
+<pre><code>f(1) = 1<br>f(2) = 2</code></pre>
+
+  <h1>Climbing Stairs DP Visualization</h1>
+
+  <div id="controls">
+    <label for="nInput">Enter n:</label>
+    <input type="number" id="nInput" min="1" max="45" value="5">
+    <button onclick="startVisualization()">Start</button>
+    <button onclick="nextStep()">Next Step</button>
+  </div>
+
+  <div id="codeBox">
+    <div class="code-line">1: if n &lt;= 2: return n</div>
+    <div class="code-line">2: a, b = 1, 2</div>
+    <div class="code-line">3: for _ in range(3, n + 1):</div>
+    <div class="code-line">4: &nbsp;&nbsp;&nbsp;&nbsp;a, b = b, a + b</div>
+    <div class="code-line">5: return b</div>
+  </div>
+
+  <div class="dp-box" id="dpArea"></div>
+
+  <script>
+    let a = 1, b = 2, i = 3, n = 5, dp = [];
+    let started = false;
+
+    const dpArea = document.getElementById("dpArea");
+    const codeLines = document.querySelectorAll(".code-line");
+
+    function highlightLine(index) {
+      codeLines.forEach(line => line.classList.remove("active-code"));
+      if (codeLines[index]) {
+        codeLines[index].classList.add("active-code");
+      }
+    }
+
+    function startVisualization() {
+      n = parseInt(document.getElementById("nInput").value);
+      if (n <= 2) {
+        highlightLine(0);
+        alert("Answer: " + n);
+        return;
+      }
+
+      a = 1; b = 2; i = 3;
+      dp = [0, 1, 2];
+      started = true;
+      dpArea.innerHTML = '';
+
+      for (let j = 0; j <= n; j++) {
+        const cell = document.createElement("div");
+        cell.className = "dp-cell";
+        cell.id = "dp-" + j;
+        cell.innerText = j <= 2 ? dp[j] : "";
+        dpArea.appendChild(cell);
+      }
+
+      highlightLine(1);
+    }
+
+    function nextStep() {
+      if (!started) return;
+
+      if (i > n) {
+        highlightLine(4);
+        alert("Answer: " + b);
+        return;
+      }
+
+      highlightLine(3);
+      const next = a + b;
+      dp[i] = next;
+      const cell = document.getElementById("dp-" + i);
+      cell.innerText = next;
+      cell.classList.add("active");
+      a = b;
+      b = next;
+      i++;
+    }
+  </script>
+</body>
+</html>

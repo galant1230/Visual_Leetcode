@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>121. 最佳買賣股票時機｜視覺化模擬器</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', monospace;
+      background: #f9f9f9;
+      padding: 2rem;
+      margin: 0;
+      color: #333;
+      text-align: center;
+    }
+    h2, h3 {
+      color: #007acc;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: left;
+    }
+    pre, code {
+      background: #f0f0f0;
+      padding: 0.5rem;
+      display: block;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    hr {
+      margin: 2rem 0;
+      border: none;
+      border-top: 1px dashed #ccc;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 2rem auto;
+      font-family: monospace;
+      max-width: 600px;
+    }
+    .code-line {
+      padding: 2px 0;
+    }
+    .active-code {
+      background-color: #444;
+    }
+    table {
+      margin: 1rem auto;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .found {
+      background-color: #4caf50;
+      color: white;
+    }
+    input, button {
+      padding: 6px;
+      margin: 0.3rem;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .button-wrap {
+      text-align: center;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📈 121. 最佳買賣股票時機（Best Time to Buy and Sell Stock）</h2>
+
+    <hr>
+    <h3>📘 題目描述</h3>
+    <p>你被給定一個陣列 <code>prices</code>，其中 <code>prices[i]</code> 表示第 i 天的股票價格。</p>
+    <p>你的目標是透過選擇 <strong>某一天買入</strong>，並選擇 <strong>未來的某一天賣出</strong> 來獲取最大利潤。</p>
+    <p>請回傳可以獲得的 <strong>最大利潤</strong>。如果無法獲得任何利潤，則回傳 <code>0</code>。</p>
+
+    <hr>
+    <h3>🧪 範例</h3>
+    <pre><code>範例 1:
+輸入: prices = [7,1,5,3,6,4]
+輸出: 5
+
+範例 2:
+輸入: prices = [7,6,4,3,1]
+輸出: 0</code></pre>
+
+    <p><strong>限制條件：</strong><br>
+    1 ≤ prices.length ≤ 10⁵<br>
+    0 ≤ prices[i] ≤ 10⁴</p>
+
+    <hr>
+    <h3>💡 解法</h3>
+    <pre><code># O(n^2) 暴力解法
+class Solution:
+    def maxProfit(self, prices):
+        max_profit = 0
+        for i in range(len(prices)):
+            for j in range(i + 1, len(prices)):
+                profit = prices[j] - prices[i]
+                max_profit = max(max_profit, profit)
+        return max_profit</code></pre>
+
+    <pre><code># O(n) 雜湊解法（最佳解）
+class Solution:
+    def maxProfit(self, prices):
+        profit = 0
+        buy = prices[0]
+        for sell in prices[1:]:
+            if sell > buy:
+                profit = max(profit, sell - buy)
+            else:
+                buy = sell
+        return profit</code></pre>
+
+    <hr>
+    <h3>⏳ 時間與空間複雜度</h3>
+    <ul>
+      <li><strong>時間複雜度：</strong> O(n)</li>
+      <li><strong>空間複雜度：</strong> O(1)</li>
+    </ul>
+
+    <hr>
+    <h3>▶️ 視覺化模擬器</h3>
+    <div class="button-wrap">
+      <label>prices: <input type="text" id="pricesInput" value="7,1,5,3,6,4"></label>
+      <button onclick="startManual()">🔃 重設</button>
+      <button onclick="stepManual()">🧭 下一步</button>
+    </div>
+
+    <table id="stepTable">
+      <thead>
+        <tr><th>Day</th><th>Price</th><th>minPrice</th><th>Action</th><th>maxProfit</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div id="codeBox">
+      <div class="code-line">1: profit = 0</div>
+      <div class="code-line">2: minPrice = prices[0]</div>
+      <div class="code-line">3: for price in prices[1:]:</div>
+      <div class="code-line">4: &nbsp;&nbsp;&nbsp;&nbsp;if price > minPrice:</div>
+      <div class="code-line">5: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;profit = max(profit, price - minPrice)</div>
+      <div class="code-line">6: &nbsp;&nbsp;&nbsp;&nbsp;else:</div>
+      <div class="code-line">7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minPrice = price</div>
+    </div>
+  </div>
+
+  <script>
+    let prices = [];
+    let i = 1;
+    let minPrice = 0;
+    let maxProfit = 0;
+    let codeLines = [];
+
+    function highlightCode(lineNum) {
+      codeLines.forEach((line, idx) => {
+        line.classList.remove("active-code");
+        if (idx === lineNum - 1) line.classList.add("active-code");
+      });
+    }
+
+    function startManual() {
+      const input = document.getElementById("pricesInput").value;
+      prices = input.split(",").map(x => parseInt(x.trim()));
+      minPrice = prices[0];
+      maxProfit = 0;
+      i = 1;
+      document.querySelector("#stepTable tbody").innerHTML = "";
+      codeLines = document.querySelectorAll(".code-line");
+      highlightCode(2);
+    }
+
+    function stepManual() {
+      if (i >= prices.length) {
+        highlightCode(0);
+        return;
+      }
+
+      const price = prices[i];
+      let action = "";
+      let line = 0;
+
+      if (price > minPrice) {
+        const profit = price - minPrice;
+        maxProfit = Math.max(maxProfit, profit);
+        action = `賣出 ➜ 獲利 ${profit}`;
+        line = 5;
+      } else {
+        minPrice = price;
+        action = `更新 minPrice`;
+        line = 7;
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${price}</td>
+        <td>${minPrice}</td>
+        <td>${action}</td>
+        <td>${maxProfit}</td>
+      `;
+      if (line === 5) row.classList.add("found");
+
+      document.querySelector("#stepTable tbody").appendChild(row);
+      highlightCode(line);
+      i++;
+    }
+  </script>
+</body>
+</html>

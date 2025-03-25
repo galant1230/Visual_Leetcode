@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>LeetCode 190 - Reverse Bits 視覺化教學</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f7fa; padding: 2rem; }
+    h1 { text-align: center; color: #007acc; }
+    .section {
+      max-width: 900px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .bit-box {
+      white-space: nowrap;
+      overflow-x: auto;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      justify-content: flex-start;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 1rem auto;
+      font-family: monospace;
+      gap: 4px;
+    }
+    .bit {
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .bit.highlight {
+      background: #2ecc71;
+      color: white;
+      font-weight: bold;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code {
+      background: #444;
+      color: white;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    .tips {
+      background: #fef7dc;
+      padding: 1rem;
+      border-left: 6px solid #f1c40f;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<h1>LeetCode 190 - Reverse Bits 視覺化教學</h1>
+
+<div class="section">
+  <h2>📌 題目描述</h2>
+  <p>給定一個 <strong>32 位元無符號整數</strong> <code>n</code>，請反轉其 <strong>二進位表示</strong> 並回傳結果。</p>
+</div>
+
+<div class="section">
+  <h2>🧠 解題思路</h2>
+  <ul>
+    <li>建立 <code>result = 0</code></li>
+    <li>執行 32 次：</li>
+    <ul>
+      <li>用 <code>n & 1</code> 取得 n 最右邊的位元</li>
+      <li><code>result = (result << 1) | (n & 1)</code></li>
+      <li>將 n 右移一位：<code>n >>= 1</code></li>
+    </ul>
+    <li>回傳 result</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>🔄 位元模擬</h2>
+  <div style="text-align:center;">
+    <label>輸入整數 (uint32)：<input type="number" id="inputN" value="43261596"></label>
+    <button onclick="start()">開始模擬</button>
+    <button onclick="step()">下一步</button>
+  </div>
+  <h3 style="text-align:center;">目前 n 的位元：</h3>
+  <div class="bit-box" id="bitInput"></div>
+  <h3 style="text-align:center;">目前 result：</h3>
+  <div class="bit-box" id="bitResult"></div>
+  <p id="output" style="text-align:center; font-weight:bold;"></p>
+</div>
+
+<div class="section">
+  <h2>💻 程式碼展示</h2>
+  <div id="codeBox">
+    <div class="code-line" id="c1">uint32_t reverseBits(uint32_t n) {</div>
+    <div class="code-line" id="c2">    uint32_t result = 0;</div>
+    <div class="code-line" id="c3">    for (int i = 0; i < 32; i++) {</div>
+    <div class="code-line" id="c4">        result = (result << 1) | (n & 1);</div>
+    <div class="code-line" id="c5">        n >>= 1;</div>
+    <div class="code-line" id="c6">    }</div>
+    <div class="code-line" id="c7">    return result;</div>
+    <div class="code-line" id="c8">}</div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>⏱ 時間與空間複雜度</h2>
+  <table>
+    <tr><th>類型</th><th>分析</th><th>Big-O</th></tr>
+    <tr><td>時間複雜度</td><td>固定執行 32 次位元操作</td><td>O(1)</td></tr>
+    <tr><td>空間複雜度</td><td>只使用常數變數</td><td>O(1)</td></tr>
+  </table>
+</div>
+
+<div class="section tips">
+  <strong>💡 小技巧：</strong>
+  <ul>
+    <li>這題核心是位元操作的 <code>左移</code>、<code>右移</code>、<code>取最低位</code> 與 <code>OR 組合</code></li>
+    <li>在 C 語言中，務必使用 <code>uint32_t</code> 以避免符號位的影響</li>
+    <li>此方法效能穩定，在所有平台都可使用</li>
+  </ul>
+</div>
+
+<script>
+let n = 0, result = 0, stepCount = 0;
+
+function toBits(x) {
+  return x.toString(2).padStart(32, '0').split('');
+}
+
+function renderBits(containerId, bits) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  bits.forEach(bit => {
+    const span = document.createElement('span');
+    span.className = 'bit';
+    span.textContent = bit;
+    container.appendChild(span);
+  });
+}
+
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(el => el.classList.remove("active-code"));
+  if (id) document.getElementById(id).classList.add("active-code");
+}
+
+function start() {
+  n = parseInt(document.getElementById("inputN").value);
+  result = 0;
+  stepCount = 0;
+  renderBits("bitInput", toBits(n));
+  renderBits("bitResult", toBits(result));
+  highlight("c1");
+  document.getElementById("output").innerText = "點擊『下一步』開始反轉位元！";
+}
+
+function step() {
+  if (stepCount >= 32) {
+    highlight("c7");
+    document.getElementById("output").innerText = `✅ 完成！反轉結果為：${result}`;
+    return;
+  }
+  highlight("c4");
+  result = (result << 1) | (n & 1);
+  highlight("c5");
+  n >>= 1;
+  renderBits("bitInput", toBits(n));
+  renderBits("bitResult", toBits(result));
+  stepCount++;
+  document.getElementById("output").innerText = `第 ${stepCount} 步完成`;
+}
+</script>
+
+</body>
+</html>
