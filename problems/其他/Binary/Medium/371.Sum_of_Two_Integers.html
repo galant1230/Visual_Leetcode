@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>LeetCode 371 - Sum of Two Integers 視覺化解法</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f7fa; padding: 2rem; }
+    h1 { text-align: center; color: #007acc; }
+    .section {
+      max-width: 900px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .bit-box {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      justify-content: flex-start;
+      margin: 1rem 0;
+    }
+    .bit {
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      text-align: center;
+      border: 1px solid #ccc;
+      margin: 2px;
+      border-radius: 4px;
+    }
+    .bit.highlight {
+      background: #2ecc71;
+      color: white;
+      font-weight: bold;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code {
+      background: #444;
+      color: white;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    .tips {
+      background: #fef7dc;
+      padding: 1rem;
+      border-left: 6px solid #f1c40f;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<h1>LeetCode 371 - Sum of Two Integers 視覺化解法</h1>
+
+<div class="section">
+  <h2>📌 題目描述</h2>
+  <p>給定兩個整數 <code>a</code> 和 <code>b</code>，請不用使用加減法，計算 <code>a + b</code>。</p>
+</div>
+
+<div class="section">
+  <h2>🧠 解題思路</h2>
+  <p>利用位元運算進行加法：</p>
+  <ul>
+    <li><strong>XOR (a ^ b)</strong> 用來計算不含進位的和。</li>
+    <li><strong>AND (a & b) << 1</strong> 用來計算進位。</li>
+  </ul>
+  <p>重複這兩步，直到進位為 0，即可得到最終答案。</p>
+</div>
+
+<div class="section">
+  <h2>🔢 位元模擬</h2>
+  <div style="text-align:center;">
+    <label>輸入整數 a 和 b（以逗號分隔）：<input type="text" id="inputNums" value="5,3" /></label>
+    <button onclick="start()">開始模擬</button>
+    <button onclick="step()">下一步</button>
+  </div>
+  <h3 style="text-align:center;">目前 a 的位元：</h3>
+  <div class="bit-box" id="bitA"></div>
+  <h3 style="text-align:center;">目前 b (進位) 的位元：</h3>
+  <div class="bit-box" id="bitB"></div>
+  <h3 style="text-align:center;">目前 結果 (a ^ b)：</h3>
+  <div class="bit-box" id="bitResult"></div>
+  <p id="output" style="text-align:center; font-weight:bold;"></p>
+</div>
+
+<div class="section">
+  <h2>💻 程式碼展示</h2>
+  <div id="codeBox">
+    <div class="code-line" id="c1">int getSum(int a, int b) {</div>
+    <div class="code-line" id="c2">    while (b != 0) {</div>
+    <div class="code-line" id="c3">        int carry = (a & b) << 1; // 計算進位</div>
+    <div class="code-line" id="c4">        a = a ^ b;              // 計算不含進位的和</div>
+    <div class="code-line" id="c5">        b = carry;              // 更新進位</div>
+    <div class="code-line" id="c6">    }</div>
+    <div class="code-line" id="c7">    return a;</div>
+    <div class="code-line" id="c8">}</div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>⏱ 時間與空間複雜度</h2>
+  <table>
+    <tr><th>類型</th><th>分析</th><th>Big-O</th></tr>
+    <tr><td>時間複雜度</td><td>每次進位移位，最多 O(log n) 次</td><td>O(log n)</td></tr>
+    <tr><td>空間複雜度</td><td>只使用常數變數</td><td>O(1)</td></tr>
+  </table>
+</div>
+
+<div class="section tips">
+  <strong>💡 小技巧：</strong>
+  <ul>
+    <li>此方法利用位元運算，不使用加法和減法，適合面試考察。</li>
+    <li>XOR 用於計算無進位的和，AND 搭配左移計算進位。</li>
+    <li>進位計算的次數與數值大小有關，通常是 O(log n) 次。</li>
+  </ul>
+</div>
+
+<script>
+let a = 0, b = 0, stepCount = 0;
+
+function toBits(x) {
+  // 將數字轉成32位元二進位陣列
+  return x.toString(2).padStart(32, '0').split('');
+}
+
+function renderBits(containerId, bits) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  bits.forEach(bit => {
+    const span = document.createElement('span');
+    span.className = 'bit';
+    span.textContent = bit;
+    container.appendChild(span);
+  });
+}
+
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(el => el.classList.remove("active-code"));
+  if (id) document.getElementById(id).classList.add("active-code");
+}
+
+function start() {
+  const nums = document.getElementById("inputNums").value.split(',').map(Number);
+  a = nums[0];
+  b = nums[1];
+  stepCount = 0;
+  renderBits("bitA", toBits(a));
+  renderBits("bitB", toBits(b));
+  renderBits("bitResult", toBits(a ^ b));
+  highlight("c1");
+  document.getElementById("output").innerText = "點擊『下一步』開始模擬過程！";
+}
+
+function step() {
+  // 當 b 為 0 時，表示沒有進位，計算完成
+  if (b === 0) {
+    highlight("c7");
+    document.getElementById("output").innerText = `✅ 結果：${a}`;
+    return;
+  }
+  highlight("c2");
+  let carry = (a & b) << 1;  // 計算進位
+  highlight("c3");
+  let sumWithoutCarry = a ^ b; // 計算不含進位的和
+  highlight("c4");
+  a = sumWithoutCarry;  // 更新 a 為當前和
+  highlight("c5");
+  b = carry;  // 更新 b 為進位
+  renderBits("bitA", toBits(a));
+  renderBits("bitB", toBits(b));
+  renderBits("bitResult", toBits(a ^ b));
+  stepCount++;
+  document.getElementById("output").innerText = `第 ${stepCount} 步完成`;
+}
+</script>
+
+</body>
+</html>

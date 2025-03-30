@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>🔤 LeetCode 139: Word Break - i/j 指標視覺化</title>
+  <style>
+    body {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      gap: 24px;
+    }
+    .left { flex: 1.6; }
+    .right { flex: 1; border-left: 4px solid #4fc3f7; padding-left: 16px; }
+    input {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      font-size: 14px;
+      padding: 4px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    button {
+      font-size: 14px;
+      padding: 6px 12px;
+      margin-top: 6px;
+    }
+    .dp-table {
+      display: flex;
+      flex-direction: row;
+      gap: 6px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .dp-cell {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      line-height: 30px;
+      border: 1px solid #ccc;
+      font-size: 13px;
+      border-radius: 4px;
+      background: #eee;
+    }
+    .true { background: #4caf50; color: white; }
+    .false { background: #f44336; color: white; }
+    .highlight-sub { background: #ffeb3b; padding: 2px 4px; border-radius: 3px; }
+    .code span {
+      display: block;
+      padding: 2px 6px;
+      font-family: 'Microsoft JhengHei', monospace;
+    }
+    .highlight-line { background-color: #fff59d; }
+    .desc { font-size: 14px; margin-bottom: 10px; line-height: 1.6; }
+    .char-line span, .ij-line span {
+      display: inline-block;
+      width: 26px;
+      text-align: center;
+    }
+    .ij-line span.i { color: blue; font-weight: bold; }
+    .ij-line span.j { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="left">
+    <h2>🔤 LeetCode 139: Word Break - Step + i/j 指標</h2>
+
+    <div class="desc">
+      ✅ <b>dp[i]</b> 表示 <code>s[0..i-1]</code> 是否可以被字典分詞組合。<br>
+      ✅ <b>dp[j]</b> 表示切點 j 前的字串（s[0..j-1]）是否可構成有效切割點。<br>
+      🔁 若 <code>dp[j] == true</code> 且 <code>s[j..i]</code> 在字典中，則 <code>dp[i] = true</code><br><br>
+      <b>dp[i]</b> 表示 s[0..i-1] 是否可以被字典分詞組合。<br>
+      ✅ 時間：<code>O(n²)</code>，空間：<code>O(n)</code>
+    </div>
+
+    <input type="text" id="inputString" value="leetcode">
+    <input type="text" id="inputDict" value="leet,code">
+    <button onclick="start()">開始</button>
+    <button onclick="step()">下一步</button>
+
+    <div class="char-line" id="charLine"></div>
+    <div class="ij-line" id="ijLine"></div>
+<div class="index-line" id="indexLine"></div>
+<script>
+function renderCharLine() {
+  const chars = [...s];
+  document.getElementById("charLine").innerHTML = `<span></span>` + chars.map(c => `<span>${c}</span>`).join('');
+  document.getElementById("indexLine").innerHTML = `<span></span>` + chars.map((_, idx) => `<span>${idx+1}</span>`).join('');
+}
+</script>
+
+    <div class="dp-table" id="dpTable"></div>
+    <div id="finalResult" class="desc"></div>
+  </div>
+
+  <div class="right">
+    <pre class="code" id="codeBlock">
+<span>dp = [False] * (n + 1)</span>
+<span>dp[0] = True</span>
+<span>for i in range(1, n + 1):</span>
+<span>  for j in range(i):</span>
+<span>    if dp[j] and s[j:i] in wordDict:</span>
+<span>      dp[i] = True</span>
+<span>      break</span>
+    </pre>
+  </div>
+</div>
+
+<script>
+let s, dict, dp, n, i = 1, j = 0, running = false;
+
+function start() {
+  s = document.getElementById("inputString").value;
+  dict = new Set(document.getElementById("inputDict").value.split(","));
+  n = s.length;
+  i = 1;
+  j = 0;
+  dp = Array(n + 1).fill(false);
+  dp[0] = true;
+  running = true;
+
+  document.getElementById("dpTable").innerHTML = "";
+  for (let k = 0; k <= n; k++) {
+    const d = document.createElement("div");
+    d.className = "dp-cell false";
+    d.id = "dp" + k;
+    d.textContent = k;
+    document.getElementById("dpTable").appendChild(d);
+  }
+
+  renderCharLine();
+  renderIJ();
+  updateDPUI();
+  document.querySelectorAll('.code span').forEach(e => e.classList.remove("highlight-line"));
+  document.getElementById("finalResult").innerText = "";
+}
+
+function step() {
+  if (!running) return;
+  const code = document.querySelectorAll('.code span');
+  code.forEach(e => e.classList.remove("highlight-line"));
+  code[2].classList.add("highlight-line");
+  code[3].classList.add("highlight-line");
+
+  if (i > n) {
+    running = false;
+    code[6].classList.add("highlight-line");
+    document.getElementById("finalResult").innerHTML = "<br>結果：<b>" + (dp[n] ? "✅ 可以被劃分" : "❌ 無法劃分") + "</b>";
+    return;
+  }
+
+  const sub = s.substring(j, i);
+  const canSplit = dp[j] && dict.has(sub);
+  if (canSplit) {
+    dp[i] = true;
+    code[4].classList.add("highlight-line");
+    code[5].classList.add("highlight-line");
+    updateDPUI();
+    j = 0;
+    i++;
+  } else {
+    j++;
+    if (j === i) {
+      i++;
+      j = 0;
+    }
+  }
+  renderIJ();
+}
+
+function renderCharLine() {
+  document.getElementById("charLine").innerHTML = [...s].map(c => `<span>${c}</span>`).join('');
+}
+
+function renderIJ() {
+  const spans = [];
+  document.getElementById("ijLine").innerHTML = `<span></span>`;
+  for (let x = 0; x < s.length; x++) {
+    if (x === j && x === i - 1) {
+      spans.push('<span class="i j">ij</span>');
+    } else if (x === j) {
+      spans.push('<span class="j">j</span>');
+    } else if (x === i - 1) {
+      spans.push('<span class="i">i</span>');
+    } else {
+      spans.push('<span> </span>');
+    }
+  }
+  document.getElementById("ijLine").innerHTML = spans.join('');
+}
+
+function updateDPUI() {
+  for (let k = 0; k < dp.length; k++) {
+    const cell = document.getElementById("dp" + k);
+    cell.className = "dp-cell " + (dp[k] ? "true" : "false");
+  }
+}
+</script>
+</body>
+</html>

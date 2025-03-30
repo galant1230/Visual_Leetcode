@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>100. 相同的樹（Same Tree）視覺化</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f7fa; padding: 2rem; }
+    h1 { text-align: center; color: #007acc; }
+    .tree-container { display: flex; justify-content: space-around; margin-top: 2rem; }
+    .tree-column { text-align: center; }
+    .layer { display: flex; justify-content: center; margin: 1rem 0; }
+    .node {
+      min-width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #3498db;
+      color: #3498db;
+      font-weight: bold;
+      margin: 0 10px;
+    }
+    .node.highlight { background: #f39c12; color: white; }
+    .node.error { background: #e74c3c; color: white; }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code { background: #444; color: white; }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 700px;
+      margin: 2rem auto;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<h1>100. 相同的樹（Same Tree）視覺化</h1>
+
+<div class="tree-container">
+  <div class="tree-column">
+    <h3>Tree P</h3>
+    <div id="treeP" class="tree"></div>
+  </div>
+  <div class="tree-column">
+    <h3>Tree Q</h3>
+    <div id="treeQ" class="tree"></div>
+  </div>
+</div>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">1: def isSameTree(p, q):</div>
+  <div class="code-line" id="c2">2: &nbsp;&nbsp;if not p and not q: return True</div>
+  <div class="code-line" id="c3">3: &nbsp;&nbsp;if not p or not q: return False</div>
+  <div class="code-line" id="c4">4: &nbsp;&nbsp;if p.val != q.val: return False</div>
+  <div class="code-line" id="c5">5: &nbsp;&nbsp;return isSameTree(p.left, q.left) and isSameTree(p.right, q.right)</div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="nextStep()">下一步</button>
+  <button onclick="reset()">重置</button>
+</div>
+
+<script>
+const treeDataP = [1,2,3];
+const treeDataQ = [1,2,3];
+
+function createTree(containerId, nodes) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  const levels = [], queue = [[0, 0]];
+  const elements = [];
+  while (queue.length) {
+    const [i, level] = queue.shift();
+    if (!levels[level]) levels[level] = [];
+    const val = nodes[i];
+    const id = containerId + "-n" + i;
+    if (val !== null && val !== undefined) {
+      levels[level].push(`<div class="node" id="${id}">${val}</div>`);
+      if (2*i+1 < nodes.length) queue.push([2*i+1, level+1]);
+      if (2*i+2 < nodes.length) queue.push([2*i+2, level+1]);
+    } else {
+      levels[level].push(`<div class="node" style="border:none;background:none;"> </div>`);
+    }
+    elements.push(id);
+  }
+  levels.forEach(layer => {
+    container.innerHTML += `<div class="layer">${layer.join('')}</div>`;
+  });
+  return elements;
+}
+
+const steps = [];
+function compareTrees(pIdx, qIdx) {
+  const p = treeDataP[pIdx], q = treeDataQ[qIdx];
+  if (p === undefined && q === undefined) {
+    steps.push({ line: 2, p: null, q: null });
+    return true;
+  }
+  if (p === undefined || q === undefined) {
+    steps.push({ line: 3, p: pIdx, q: qIdx, error: true });
+    return false;
+  }
+  steps.push({ line: 4, p: pIdx, q: qIdx, error: p !== q });
+  if (p !== q) return false;
+  steps.push({ line: 5, p: pIdx, q: qIdx });
+  const left = compareTrees(2*pIdx+1, 2*qIdx+1);
+  const right = compareTrees(2*pIdx+2, 2*qIdx+2);
+  return left && right;
+}
+
+let stepIndex = 0;
+let nodesP = [], nodesQ = [];
+
+function nextStep() {
+  if (stepIndex >= steps.length) return;
+  document.querySelectorAll(".code-line").forEach(e => e.classList.remove("active-code"));
+  document.querySelectorAll(".node").forEach(e => {
+    e.classList.remove("highlight");
+    e.classList.remove("error");
+  });
+  const step = steps[stepIndex++];
+  document.getElementById("c" + step.line).classList.add("active-code");
+  if (step.p !== null && nodesP[step.p]) {
+    document.getElementById(nodesP[step.p]).classList.add(step.error ? "error" : "highlight");
+  }
+  if (step.q !== null && nodesQ[step.q]) {
+    document.getElementById(nodesQ[step.q]).classList.add(step.error ? "error" : "highlight");
+  }
+}
+
+function reset() {
+  nodesP = createTree("treeP", treeDataP);
+  nodesQ = createTree("treeQ", treeDataQ);
+  steps.length = 0;
+  stepIndex = 0;
+  compareTrees(0, 0);
+  document.querySelectorAll(".code-line").forEach(e => e.classList.remove("active-code"));
+}
+reset();
+</script>
+
+</body>
+</html>

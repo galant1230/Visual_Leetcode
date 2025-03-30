@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>226. 反轉二元樹（美化節點樣式版）</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f7fa; padding: 2rem; }
+    h1 { text-align: center; color: #007acc; }
+    .tree-wrapper { position: relative; text-align: center; }
+    .tree { text-align: center; margin-top: 2rem; position: relative; z-index: 2; }
+    .layer { display: flex; justify-content: center; margin: 3rem 0; position: relative; }
+    .node {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #3498db;
+      color: #3498db;
+      font-weight: bold;
+      font-size: 20px;
+      margin: 0 30px;
+      position: relative;
+      z-index: 3;
+    }
+    .node.highlight { background: #f39c12; color: white; }
+    .node.swap { background: #2ecc71; color: white; }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code { background: #444; color: white; }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 700px;
+      margin: 2rem auto;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 1rem;
+    }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+<h1>226. 反轉二元樹（Swap First + 節點美化 + 連線）</h1>
+
+<div class="tree-wrapper">
+  <svg id="lines" width="100%" height="100%"></svg>
+  <div id="tree" class="tree"></div>
+</div>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">1: def invertTree(root):</div>
+  <div class="code-line" id="c2">2: &nbsp;&nbsp;if root is None: return None</div>
+  <div class="code-line" id="c3">3: &nbsp;&nbsp;root.left, root.right = root.right, root.left</div>
+  <div class="code-line" id="c4">4: &nbsp;&nbsp;invertTree(root.left)</div>
+  <div class="code-line" id="c5">5: &nbsp;&nbsp;invertTree(root.right)</div>
+  <div class="code-line" id="c6">6: &nbsp;&nbsp;return root</div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="nextStep()">下一步</button>
+  <button onclick="reset()">重置</button>
+</div>
+
+<script>
+const treeData = [4,2,7,1,3,6,9];
+let treeNodes = [], steps = [], stepIndex = 0;
+
+function createTree() {
+  const tree = document.getElementById("tree");
+  tree.innerHTML = "";
+  const levels = [], queue = [[0, 0]];
+  const nodes = [];
+
+  while (queue.length) {
+    const [i, level] = queue.shift();
+    if (!levels[level]) {
+      const layerDiv = document.createElement("div");
+      layerDiv.className = "layer";
+      tree.appendChild(layerDiv);
+      levels[level] = layerDiv;
+    }
+    const val = treeData[i];
+    const id = "n" + i;
+    const node = document.createElement("div");
+    node.className = "node";
+    node.id = id;
+    node.innerText = val;
+    levels[level].appendChild(node);
+    nodes.push(node);
+    if (val !== null && val !== undefined) {
+      queue.push([2*i+1, level+1]);
+      queue.push([2*i+2, level+1]);
+    }
+  }
+
+  const allNodes = Array.from(document.querySelectorAll(".node"));
+  drawLines(allNodes);
+  return allNodes.map(n => n.id);
+}
+
+function drawLines(nodeEls) {
+  const svg = document.getElementById("lines");
+  svg.innerHTML = "";
+  nodeEls.forEach((node, i) => {
+    const parent = document.getElementById("n" + i);
+    if (!parent) return;
+    const left = document.getElementById("n" + (2*i+1));
+    const right = document.getElementById("n" + (2*i+2));
+    [left, right].forEach(child => {
+      if (child) {
+        const pl = parent.getBoundingClientRect();
+        const cl = child.getBoundingClientRect();
+        const x1 = pl.left + pl.width / 2 + window.scrollX;
+        const y1 = pl.top + pl.height / 2 + window.scrollY;
+        const x2 = cl.left + cl.width / 2 + window.scrollX;
+        const y2 = cl.top + cl.height / 2 + window.scrollY;
+        
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x1);
+        line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2);
+        line.setAttribute("y2", y2);
+        line.setAttribute("stroke", "#aaa");
+        line.setAttribute("stroke-width", "2");
+        
+        // svg.appendChild(line);
+      }
+    });
+  });
+}
+
+function highlightLine(n) {
+  document.querySelectorAll(".code-line").forEach(e => e.classList.remove("active-code"));
+  if (n) document.getElementById("c" + n).classList.add("active-code");
+}
+
+function highlightNodes(indices, cls) {
+  document.querySelectorAll(".node").forEach(e => e.classList.remove("highlight", "swap"));
+  indices.forEach(i => {
+    const el = document.getElementById("n" + i);
+    if (el) el.classList.add(cls);
+  });
+}
+
+function swapNodes(i, j) {
+  const el1 = document.getElementById("n" + i);
+  const el2 = document.getElementById("n" + j);
+  if (el1 && el2) {
+    const tmp = el1.innerText;
+    el1.innerText = el2.innerText;
+    el2.innerText = tmp;
+    el1.classList.add("swap");
+    el2.classList.add("swap");
+  }
+}
+
+function generateSteps(i = 0) {
+  if (i >= treeData.length || treeData[i] === null || treeData[i] === undefined) {
+    steps.push({ line: 2, nodes: [] });
+    return;
+  }
+  steps.push({ line: 1, nodes: [i] });
+  steps.push({ line: 3, swap: [2*i+1, 2*i+2] });
+  steps.push({ line: 4, nodes: [2*i+1] });
+  generateSteps(2*i+1);
+  steps.push({ line: 5, nodes: [2*i+2] });
+  generateSteps(2*i+2);
+  steps.push({ line: 6, nodes: [i] });
+}
+
+function nextStep() {
+  if (stepIndex >= steps.length) return;
+  const step = steps[stepIndex++];
+  highlightLine(step.line);
+  if (step.nodes) highlightNodes(step.nodes, "highlight");
+  if (step.swap) swapNodes(step.swap[0], step.swap[1]);
+}
+
+function reset() {
+  treeNodes = createTree();
+  steps = [];
+  stepIndex = 0;
+  generateSteps();
+  highlightLine(null);
+}
+reset();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>572. Subtree DFS 動畫模擬器</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    h1 { text-align: center; }
+    .tree { text-align: center; margin-top: 2rem; }
+    .node {
+      width: 40px; height: 40px;
+      border: 2px solid #2980b9;
+      border-radius: 50%;
+      background: white; color: #2980b9;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: bold; margin: 5px;
+    }
+    .highlight { background: #e67e22; color: white; }
+    .matched { background: #2ecc71; color: white; }
+    pre { background: #f0f0f0; padding: 1rem; border-radius: 6px; overflow-x: auto; }
+    .info { margin-top: 1rem; font-size: 16px; }
+    button { background: #2980b9; color: white; padding: 8px 16px; border: none; border-radius: 6px; margin: 10px; }
+  </style>
+</head>
+<body>
+
+<h1>572. Subtree of Another Tree｜DFS 精簡版動畫模擬器</h1>
+
+<div style="text-align:center;">
+  <label>Root 樹：</label>
+  <input id="rootInput" value="[3,4,5,1,2]" style="width:300px;" />
+  <br><br>
+  <label>SubRoot 樹：</label>
+  <input id="subInput" value="[4,1,2]" style="width:300px;" />
+  <br><br>
+  <button onclick="start()">開始 DFS 子樹比對</button>
+  <button onclick="next()">下一步</button>
+</div>
+
+<div class="tree">
+  <h3>🌳 Root 樹</h3>
+  <div id="rootTree"></div>
+  <h3>🌿 SubRoot 樹</h3>
+  <div id="subTree"></div>
+</div>
+
+<div class="info" id="info">準備開始比對</div>
+
+<h2>🔧 精簡版程式碼 (DFS)</h2>
+<pre><code class="language-python">def isSubtree(root, subRoot):
+    if root == None:
+        return False
+    if isSameTree(root, subRoot):
+        return True
+    return isSubtree(root.left, subRoot) or isSubtree(root.right, subRoot)
+
+def isSameTree(p, q):
+    if not p and not q: return True
+    if not p or not q: return False
+    return (p.val == q.val and 
+            isSameTree(p.left, q.left) and 
+            isSameTree(p.right, q.right))
+</code></pre>
+
+<h2>⏱ 時間與空間複雜度</h2>
+<ul>
+  <li><strong>時間複雜度：</strong>O(m * n)</li>
+  <li><strong>空間複雜度：</strong>O(h)</li>
+</ul>
+
+<h2>💡 Tips</h2>
+<ul>
+  <li>這是 DFS 經典寫法，簡單清楚又實用</li>
+  <li>會從 root 每個節點下去遞迴嘗試比對 subRoot</li>
+  <li>可改進為 hash 樹序列化或字串匹配，但此法已足夠應付大部分面試</li>
+</ul>
+
+<script>
+let r = [], s = [], i = 0, steps = [], stepIndex = 0;
+
+function parseTree(str) {
+  try { return JSON.parse(str).map(v => v === null ? null : v); }
+  catch { alert("請輸入合法陣列"); return []; }
+}
+
+function render(id, arr) {
+  const dom = document.getElementById(id);
+  dom.innerHTML = "";
+  arr.forEach((v, i) => {
+    const n = document.createElement("div");
+    n.className = "node";
+    n.textContent = v === null ? "∅" : v;
+    n.id = id + "-" + i;
+    dom.appendChild(n);
+  });
+}
+
+function same(p, q) {
+  if (p >= r.length || q >= s.length) return false;
+  if (s[q] === null) return r[p] === null;
+  if (r[p] !== s[q]) return false;
+  return same(2*p+1, 2*q+1) && same(2*p+2, 2*q+2);
+}
+
+function simulate() {
+  steps = [];
+  for (let j = 0; j < r.length; j++) {
+    steps.push({ idx: j, match: same(j, 0) });
+  }
+}
+
+function next() {
+  if (stepIndex >= steps.length) return;
+  r.forEach((_, i) => document.getElementById("rootTree-" + i)?.classList.remove("highlight", "matched"));
+  const s = steps[stepIndex++];
+  const el = document.getElementById("rootTree-" + s.idx);
+  if (el) el.classList.add(s.match ? "matched" : "highlight");
+  document.getElementById("info").innerText =
+    `節點 ${s.idx} 比對結果：${s.match ? "✅ 是子樹" : "❌ 不匹配"}`;
+}
+
+function start() {
+  r = parseTree(document.getElementById("rootInput").value);
+  s = parseTree(document.getElementById("subInput").value);
+  stepIndex = 0;
+  render("rootTree", r);
+  render("subTree", s);
+  simulate();
+  document.getElementById("info").innerText = "開始比對...";
+}
+</script>
+
+</body>
+</html>

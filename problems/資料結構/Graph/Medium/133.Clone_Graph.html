@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>📘 Clone Graph - 動畫解析</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    h3 {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .layout {
+      display: flex;
+      justify-content: center;
+      gap: 100px;
+      margin-top: 30px;
+    }
+    .graph {
+      position: relative;
+      width: 320px;
+      height: 300px;
+    }
+    .node {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #ffd54f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      position: absolute;
+      transition: background 0.3s ease;
+    }
+    .visited {
+      background: #4fc3f7 !important;
+      color: white;
+    }
+    #node1, #clone1 { top: 0; left: 100px; }
+    #node2, #clone2 { top: 0; left: 200px; }
+    #node3, #clone3 { top: 100px; left: 200px; }
+    #node4, #clone4 { top: 100px; left: 100px; }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+    button, select {
+      font-size: 16px;
+      padding: 8px 16px;
+      margin: 0 5px;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      margin-top: 30px;
+      border-left: 4px solid #4fc3f7;
+      overflow-x: auto;
+    }
+    .highlight-line {
+      background-color: #fff59d;
+      display: block;
+    }
+    .visited-box, .stack-box {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📘 Clone Graph - 動畫解析</h2>
+  <h3>給定一個無向圖節點，請回傳整張圖的深層複製（clone）。使用 DFS + visited map 避免重複節點。</h3>
+  <ul style="max-width: 700px; margin: auto;">
+    <li>⏱ 時間複雜度：O(N + E)，其中 N 為節點數，E 為邊數。</li>
+    <li>🧠 空間複雜度：O(N)，visited 字典與遞迴堆疊。</li>
+  </ul>
+  <div class="controls">
+    <button onclick="startClone()">開始 Clone</button>
+    <button onclick="nextStep()">下一步 ⏩</button>
+    <select id="testcase" onchange="loadTestcase()">
+      <option value="default">預設圖 (1-2-3-4)</option>
+      <option value="single">單節點圖 [1]</option>
+      <option value="empty">空圖 []</option>
+    </select>
+  </div>
+  <div class="layout">
+    <div class="graph" id="graphArea">
+      <div class="node" id="node1">1</div>
+      <div class="node" id="node2">2</div>
+      <div class="node" id="node3">3</div>
+      <div class="node" id="node4">4</div>
+    </div>
+    <div class="graph" id="cloneArea">
+      <div class="node" id="clone1">1</div>
+      <div class="node" id="clone2">2</div>
+      <div class="node" id="clone3">3</div>
+      <div class="node" id="clone4">4</div>
+    </div>
+  </div>
+
+  <pre id="code">
+<span>visited = {}</span>
+<span>def dfs(node):</span>
+<span>    if node in visited:</span>
+<span>        return visited[node]</span>
+<span>    clone = Node(node.val)</span>
+<span>    visited[node] = clone</span>
+<span>    for nei in node.neighbors:</span>
+<span>        clone.neighbors.append(dfs(nei))</span>
+<span>    return clone</span>
+  </pre>
+
+  <div class="visited-box">
+    <strong>🔍 visited 映射：</strong>
+    <span id="visitedMap">空</span>
+  </div>
+  <div class="stack-box">
+    <strong>🌀 呼叫堆疊：</strong>
+    <span id="callStack">空</span>
+  </div>
+
+  <script>
+    const steps = [
+      { node: 'node1', line: 2 },
+      { node: 'node1', line: 4 },
+      { node: 'node2', line: 2 },
+      { node: 'node2', line: 4 },
+      { node: 'node3', line: 2 },
+      { node: 'node3', line: 4 },
+      { node: 'node4', line: 2 },
+      { node: 'node4', line: 4 }
+    ];
+
+    let step = 0;
+    let visitedMap = {};
+    let callStack = [];
+
+    function reset() {
+      step = 0;
+      visitedMap = {};
+      callStack = [];
+      document.querySelectorAll('.node').forEach(n => n.classList.remove('visited'));
+      document.querySelectorAll('#code span').forEach(s => s.classList.remove('highlight-line'));
+      document.getElementById('visitedMap').textContent = '空';
+      document.getElementById('callStack').textContent = '空';
+    }
+
+    function startClone() {
+      reset();
+      nextStep();
+    }
+
+    function nextStep() {
+      if (step >= steps.length) return;
+      const { node, line } = steps[step];
+      const val = document.getElementById(node).textContent;
+      document.getElementById(node).classList.add('visited');
+      document.getElementById('clone' + val).classList.add('visited');
+
+      const lines = document.querySelectorAll('#code span');
+      lines.forEach((el, idx) => el.classList.toggle('highlight-line', idx === line));
+
+      visitedMap[val] = 'Node(' + val + ')';
+      callStack.push('dfs(' + val + ')');
+
+      document.getElementById('visitedMap').textContent = JSON.stringify(visitedMap);
+      document.getElementById('callStack').textContent = callStack.join(' → ');
+
+      step++;
+    }
+  
+    function loadTestcase() {
+      const val = document.getElementById('testcase').value;
+      const nodes = ['1','2','3','4'];
+      nodes.forEach(n => {
+        document.getElementById('node'+n).style.display = 'none';
+        document.getElementById('clone'+n).style.display = 'none';
+      });
+      if (val === 'default') {
+        ['1','2','3','4'].forEach(n => {
+          document.getElementById('node'+n).style.display = 'block';
+          document.getElementById('clone'+n).style.display = 'block';
+        });
+      } else if (val === 'single') {
+        ['1'].forEach(n => {
+          document.getElementById('node'+n).style.display = 'block';
+          document.getElementById('clone'+n).style.display = 'block';
+        });
+      } // empty = none shown
+    }
+</script>
+</body>
+</html>

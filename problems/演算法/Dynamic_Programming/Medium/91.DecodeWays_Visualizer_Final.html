@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔐 LeetCode 91: 解碼方法 - 動態規劃視覺化</title>
+  <style>
+    body {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1000px;
+    }
+    input {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      font-size: 14px;
+      padding: 6px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    button {
+      font-size: 14px;
+      padding: 6px 12px;
+      margin: 8px 4px 0 0;
+    }
+    .desc, .result {
+      font-size: 14px;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+    .char-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .char {
+      padding: 10px;
+      width: 40px;
+      height: 40px;
+      background: #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      line-height: 20px;
+      font-size: 16px;
+      position: relative;
+    }
+    .highlight {
+      background: #4caf50 !important;
+      color: white;
+    }
+    .dp-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .dp-cell {
+      background: #fffde7;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 40px;
+      text-align: center;
+    }
+    .code-line {
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: block;
+    }
+    .code-line.highlight {
+      background-color: #fff59d;
+      font-weight: bold;
+    }
+  </style>
+  <style>
+  .code-line {
+    font-family: "Times New Roman", Times, serif !important;
+  }
+  </style>
+</head>
+<body>
+<div class="container" style="display: flex; gap: 24px;"><div class="left" style="flex: 2;">
+  <h2>🔐 LeetCode 91: 解碼方法</h2>
+
+  <div class="desc">
+    每個數字可以對應一個字母（1=A, 2=B, ..., 26=Z）<br>
+    <code>dp[i] = dp[i-1]（若 s[i-1] ≠ '0'）</code><br>
+    <code>+ dp[i-2]（若 s[i-2:i] 介於 10~26）</code>
+  </div>
+
+  <input id="inputString" value="226" />
+  <button onclick="start()">開始</button>
+  <button onclick="stepWithCode()">下一步</button>
+
+  <div class="char-row" id="charRow"></div>
+  <div class="dp-row" id="dpRow"></div>
+  <div class="result" id="explanation"></div>
+</div>
+
+<script>
+let s = "", dp = [], idx = 2, explanation = "", resultShown = false;
+
+function start() {
+  s = document.getElementById("inputString").value;
+  dp = Array(s.length + 1).fill(0);
+  dp[0] = 1;
+  dp[1] = s[0] === '0' ? 0 : 1;
+  idx = 2;
+  resultShown = false;
+
+  document.getElementById("charRow").innerHTML = s.split('').map((c, i) =>
+    `<div class="char" id="char${i}">${c}</div>`).join('');
+  document.getElementById("dpRow").innerHTML = dp.map((v, i) =>
+    `<div class="dp-cell" id="dp${i}">${v}</div>`).join('');
+  document.getElementById("explanation").innerText =
+    `初始化：dp[0] = ${dp[0]}, dp[1] = ${dp[1]}`;
+}
+
+function step() {
+  if (idx > s.length) {
+    document.getElementById("explanation").innerText += `\n✅ 解碼方法總數：${dp[s.length]}`;
+    resultShown = true;
+    return;
+  }
+
+  let oneDigit = parseInt(s.slice(idx - 1, idx));
+  let twoDigit = parseInt(s.slice(idx - 2, idx));
+
+  let info = "";
+  if (oneDigit >= 1) {
+    dp[idx] += dp[idx - 1];
+    info += `一位數 ${oneDigit} 有效，+dp[${idx - 1}] = ${dp[idx - 1]}\n`;
+  }
+  if (twoDigit >= 10 && twoDigit <= 26) {
+    dp[idx] += dp[idx - 2];
+    info += `兩位數 ${twoDigit} 有效，+dp[${idx - 2}] = ${dp[idx - 2]}\n`;
+  }
+
+  document.getElementById("dp" + idx).textContent = dp[idx];
+  document.getElementById("explanation").innerText = `🔢 i = ${idx}\ndp[${idx}] = ${dp[idx]}\n` + info;
+
+  for (let i = 0; i < s.length; i++) {
+    document.getElementById("char" + i).classList.remove("highlight");
+  }
+  if (idx - 1 < s.length) document.getElementById("char" + (idx - 1)).classList.add("highlight");
+  if (idx - 2 < s.length) document.getElementById("char" + (idx - 2)).classList.add("highlight");
+
+  idx++;
+}
+
+
+function stepWithCode() {
+  if (resultShown) return;
+
+  if (idx > s.length) {
+    highlightLine(10); // 結束時亮 return
+    step();
+    return;
+  }
+
+  let highlightLines = [5]; // for 迴圈行
+
+  let oneDigit = parseInt(s.slice(idx - 1, idx));
+  let twoDigit = parseInt(s.slice(idx - 2, idx));
+
+  if (oneDigit >= 1) {
+    highlightLines.push(6, 7);
+  }
+  if (twoDigit >= 10 && twoDigit <= 26) {
+    highlightLines.push(8, 9);
+  }
+
+  // 亮對應程式碼行
+  document.querySelectorAll(".code-line").forEach(e => e.classList.remove("highlight"));
+  highlightLines.forEach(i => {
+    const el = document.getElementById("c" + i);
+    if (el) el.classList.add("highlight");
+  });
+
+  step();
+}
+
+
+function highlightLine(lineId) {
+  document.querySelectorAll(".code-line").forEach(e => e.classList.remove("highlight"));
+  const el = document.getElementById("c" + lineId);
+  if (el) el.classList.add("highlight");
+}
+</script>
+
+<div class="right" style="flex: 1; background: #f9f9f9; padding: 16px; font-family: 'Times New Roman', Times, serif; font-size: 13px;">
+  <h3 style="margin-top:0;">🔧 原始程式碼</h3>
+  <pre><code>
+<span class="code-line" id="c0">class Solution:</span>
+<span class="code-line" id="c1">    def numDecodings(self, s: str) -> int:</span>
+<span class="code-line" id="c2">        if not s or s[0] == '0': return 0</span>
+<span class="code-line" id="c3">        dp = [0] * (len(s) + 1)</span>
+<span class="code-line" id="c4">        dp[0], dp[1] = 1, 1</span>
+<span class="code-line" id="c5">        for i in range(2, len(s)+1):</span>
+<span class="code-line" id="c6">            if s[i-1] != '0':</span>
+<span class="code-line" id="c7">                dp[i] += dp[i-1]</span>
+<span class="code-line" id="c8">            if 10 <= int(s[i-2:i]) <= 26:</span>
+<span class="code-line" id="c9">                dp[i] += dp[i-2]</span>
+<span class="code-line" id="c10">        return dp[-1]</span>
+  </code></pre>
+
+  <h3>🧠 時間 / 空間複雜度</h3>
+  <ul>
+    <li><b>時間複雜度</b>：<code>O(n)</code></li>
+    <li><b>空間複雜度</b>：<code>O(n)</code></li>
+  </ul>
+</div>
+
+</body>
+</html>

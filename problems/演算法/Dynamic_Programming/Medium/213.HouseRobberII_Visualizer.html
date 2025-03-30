@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔁 LeetCode 213: House Robber II - 環狀動態規劃視覺化</title>
+  <style>
+    body {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1000px;
+    }
+    input {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      font-size: 14px;
+      padding: 6px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    button {
+      font-size: 14px;
+      padding: 6px 12px;
+      margin: 8px 4px 0 0;
+    }
+    .desc, .result {
+      font-size: 14px;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+    .house-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .house {
+      padding: 10px;
+      width: 50px;
+      height: 50px;
+      background: #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      line-height: 30px;
+      font-size: 14px;
+      position: relative;
+    }
+    .highlight {
+      background: #4caf50 !important;
+      color: white;
+    }
+    .dp-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .dp-cell {
+      background: #fffde7;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 60px;
+      text-align: center;
+    }
+  </style>
+<style>
+.code-line {
+  font-family: "Times New Roman", Times, serif !important;
+}
+</style>
+
+
+<style>
+.code-line { padding: 2px 6px; border-radius: 4px; display: block; }
+.code-line.highlight { background-color: #fff59d; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="container" style="display: flex; gap: 24px;"><div class="left" style="flex: 2;">
+  <h2>🔁 LeetCode 213: House Robber II - 環狀動態規劃</h2>
+
+  <div class="desc">
+    房子首尾相連，不能同時搶第一與最後一間。<br>
+    需計算兩次：<br>
+    🟡 Case1: 把第一間排除（搶 1~n-1）<br>
+    🟠 Case2: 把最後一間排除（搶 0~n-2）<br>
+    回傳兩者的最大值。<br><br>
+    <code>dp[i] = max(dp[i-1], dp[i-2] + nums[i])</code><br>
+    ⏱ 時間複雜度 <code>O(n)</code>，空間複雜度 <code>O(n)</code>
+  </div>
+
+  <input id="inputNums" value="2,3,2" />
+  <button onclick="start()">開始</button>
+  <button onclick="stepWithCode()">下一步</button>
+
+  <div class="desc" id="currentCase"></div>
+  <div class="house-row" id="houseRow"></div>
+  <div class="dp-row" id="dpRow"></div>
+  <div class="result" id="explanation"></div>
+</div>
+
+<script>
+let nums = [], dp = [], idx = 2, mode = 0, case1 = [], case2 = [], dpDisplay = [];
+
+function start() {
+  nums = document.getElementById("inputNums").value.split(',').map(Number);
+  if (nums.length === 1) {
+    document.getElementById("explanation").innerText = "✅ 唯一一間，金額為 " + nums[0];
+    return;
+  }
+
+  case1 = nums.slice(1);         // skip first
+  case2 = nums.slice(0, nums.length - 1); // skip last
+  mode = 0;
+  idx = 2;
+  runCase(case2, "🟠 Case 1: 不搶最後一間（搶 0~n-2）");
+}
+
+function runCase(arr, label) {
+  dp = Array(arr.length).fill(0);
+  dp[0] = arr[0];
+  dp[1] = Math.max(arr[0], arr[1]);
+  idx = 2;
+
+  dpDisplay = Array(arr.length).fill("");
+  dpDisplay[0] = dp[0];
+  dpDisplay[1] = dp[1];
+
+  document.getElementById("currentCase").innerText = label;
+  document.getElementById("houseRow").innerHTML = arr.map((v, i) =>
+    `<div class="house" id="house${i}">${v}</div>`).join('');
+  document.getElementById("dpRow").innerHTML = dpDisplay.map((v, i) =>
+    `<div class="dp-cell" id="dp${i}">${v}</div>`).join('');
+  document.getElementById("explanation").innerText =
+    "初始化：dp[0] = " + dp[0] + "，dp[1] = " + dp[1];
+}
+
+function step() {
+  let arr = mode === 0 ? case2 : case1;
+  if (idx >= arr.length) {
+    if (mode === 0) {
+      let ans1 = dp[dp.length - 1];
+      mode = 1;
+      runCase(case1, "🟡 Case 2: 不搶第一間（搶 1~n-1）");
+      document.getElementById("explanation").innerText += `
+🟠 Case 1 答案：${ans1}`;
+    } else {
+      let ans2 = dp[dp.length - 1];
+      const ans1 = parseInt(document.getElementById("explanation").innerText.match(/答案：(\d+)/)[1]);
+      const final = Math.max(ans1, ans2);
+      document.getElementById("explanation").innerText += `
+🟡 Case 2 答案：${ans2}
+✅ 最大金額：${final}`;
+      resultShown = true;
+    }
+    return;
+  }
+
+  dp[idx] = Math.max(dp[idx - 1], dp[idx - 2] + arr[idx]);
+  dpDisplay[idx] = dp[idx];
+  document.getElementById("dp" + idx).textContent = dp[idx];
+  document.getElementById("explanation").innerText =
+    `dp[${idx}] = max(dp[${idx - 1}] = ${dp[idx - 1]}, dp[${idx - 2}] + nums[${idx}] = ${dp[idx - 2]} + ${arr[idx]}) = ${dp[idx]}`;
+
+  for (let i = 0; i < arr.length; i++) {
+    document.getElementById("house" + i).classList.remove("highlight");
+  }
+  document.getElementById("house" + idx).classList.add("highlight");
+  document.getElementById("house" + (idx - 2)).classList.add("highlight");
+
+  idx++;
+}
+</script>
+
+
+<div class="right" style="flex: 1; background: #f9f9f9; padding: 16px; font-family: "Times New Roman", Times, serif; font-size: 13px;">
+  <h3 style="margin-top:0;">🔧 原始程式碼</h3>
+  <pre><code>
+<span class="code-line" id="c0">class Solution:</span>
+<span class="code-line" id="c1">    def rob(self, nums: List[int]) -> int:</span>
+<span class="code-line" id="c2">        if not nums:</span>
+<span class="code-line" id="c3">            return 0</span>
+<span class="code-line" id="c4">        if len(nums) == 1:</span>
+<span class="code-line" id="c5">            return nums[0]</span>
+<span class="code-line" id="c6"></span>
+<span class="code-line" id="c7">        def rob_range(nums: List[int]) -> int:</span>
+<span class="code-line" id="c8">            n = len(nums)</span>
+<span class="code-line" id="c9">            if n == 0: return 0</span>
+<span class="code-line" id="c10">            if n == 1: return nums[0]</span>
+<span class="code-line" id="c11">            dp = [0] * n</span>
+<span class="code-line" id="c12">            dp[0] = nums[0]</span>
+<span class="code-line" id="c13">            dp[1] = max(nums[0], nums[1])</span>
+<span class="code-line" id="c14">            for i in range(2, n):</span>
+<span class="code-line" id="c15">                dp[i] = max(dp[i - 1], dp[i - 2] + nums[i])</span>
+<span class="code-line" id="c16">            return dp[-1]</span>
+<span class="code-line" id="c17"></span>
+<span class="code-line" id="c18">        return max(rob_range(nums[:-1]), rob_range(nums[1:]))</span>
+  </code></pre>
+  <h3>🧠 時間 / 空間複雜度</h3>
+  <ul>
+    <li><b>時間複雜度</b>：<code>O(n)</code></li>
+    <li><b>空間複雜度</b>：<code>O(n)</code></li>
+  </ul>
+</div>
+</div></div>
+<script>
+let currentCode = 14;
+
+let resultShown = false;
+function stepWithCode() {
+  if (resultShown) return;
+  highlightLine(currentCode);
+  currentCode++;
+  if (typeof step === 'function') step();
+}
+
+function highlightLine(lineId) {
+  document.querySelectorAll(".code-line").forEach(e => e.classList.remove("highlight"));
+  const el = document.getElementById("c" + lineId);
+  if (el) el.classList.add("highlight");
+}
+function stepWithCode() {
+  highlightLine(currentCode);
+  currentCode++;
+  if (typeof step === 'function') step();
+}
+</script>
+</body>
+</html>

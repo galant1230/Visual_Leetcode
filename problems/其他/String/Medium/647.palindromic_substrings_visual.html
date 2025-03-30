@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>LeetCode 647 - 回文子字串</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; padding: 2rem; }
+    h1, h2 { color: #2c3e50; }
+    pre.code-block { background: #2d2d2d; color: #f8f8f2; padding: 1rem; border-radius: 8px; font-family: monospace; line-height: 1.5; overflow-x: auto; }
+    .highlight { background: #44475a; display: block; }
+    .window-row, .pointer-row { display: flex; justify-content: center; font-family: monospace; margin: 10px 0; }
+    .cell {
+      width: 40px; height: 40px; border: 2px solid #ccc;
+      display: flex; align-items: center; justify-content: center;
+      margin: 2px; font-size: 20px; background: white;
+    }
+    .center { background: #d5f5e3; border-color: #27ae60; }
+    .match { background: #f9e0e0; border-color: #e74c3c; }
+    .label { font-size: 12px; text-align: center; width: 40px; }
+    .state-box {
+      text-align: center;
+      margin: 1rem 0;
+      font-family: monospace;
+      font-size: 16px;
+    }
+    button { margin: 0.5rem; padding: 0.5rem 1rem; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<h1>📘 LeetCode 647 - 回文子字串 (Palindromic Substrings)</h1>
+
+<h2>🔹 題目描述</h2>
+<p>給定一個字串 s，請回傳 s 中的 <strong>回文子字串數量</strong>。</p>
+
+<h2>🧠 解法：中心擴展法 (Expand Around Center)</h2>
+<ul>
+  <li>遍歷每個索引 i，作為回文中心。</li>
+  <li>對於奇數長度中心使用 expand(i, i)</li>
+  <li>偶數長度使用 expand(i, i+1)</li>
+  <li>從中心往外擴展並統計回文次數</li>
+</ul>
+<h2>⏱️ 時間與空間複雜度</h2>
+<ul>
+<li><strong>時間複雜度：</strong>O(n²)，每個中心最多擴展 O(n) 次，共有 2n-1 個中心。</li>
+<li><strong>空間複雜度：</strong>O(1)，只使用常數額外變數。</li>
+</ul>
+
+<h2>💡 Python 程式碼</h2>
+<pre class="code-block" id="code">
+<span id="line1">class Solution:</span>
+<span id="line2">    def countSubstrings(self, s: str) -> int:</span>
+<span id="line3">        def expand(l, r):</span>
+<span id="line4">            count = 0</span>
+<span id="line5">            while l >= 0 and r < len(s) and s[l] == s[r]:</span>
+<span id="line6">                count += 1</span>
+<span id="line7">                l -= 1</span>
+<span id="line8">                r += 1</span>
+<span id="line9">            return count</span>
+<span id="line10">        total = 0</span>
+<span id="line11">        for i in range(len(s)):</span>
+<span id="line12">            total += expand(i, i)</span>
+<span id="line13">            total += expand(i, i+1)</span>
+<span id="line14">        return total</span>
+</pre>
+
+<h2>🌀 視覺化擴展中心</h2>
+<div class="window-row" id="windowRow"></div>
+<div class="pointer-row" id="pointerRow"></div>
+<div class="state-box" id="expandLabel">🔍 Expand: -</div>
+<div class="state-box">
+  total: <span id="total">0</span>
+</div>
+<p style="text-align:center;">
+  <button onclick="nextStep()">下一步</button>
+  <button onclick="reset()">重置</button>
+</p>
+
+<script>
+const s = "aaa";
+let total = 0;
+let center = 0;
+let stage = 0;
+let l = 0, r = 0;
+let active = true;
+
+function highlight(lineNum) {
+  for (let i = 1; i <= 14; i++) {
+    document.getElementById("line" + i).classList.remove("highlight");
+  }
+  if (lineNum) document.getElementById("line" + lineNum).classList.add("highlight");
+}
+
+function render() {
+  const win = document.getElementById("windowRow");
+  const ptr = document.getElementById("pointerRow");
+  const tot = document.getElementById("total");
+  win.innerHTML = "";
+  ptr.innerHTML = "";
+
+  for (let i = 0; i < s.length; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    if (i === l || i === r) cell.classList.add("match");
+    if (i === center) cell.classList.add("center");
+    cell.textContent = s[i];
+    win.appendChild(cell);
+
+    const label = document.createElement("div");
+    label.className = "label";
+    if (i === l && i === r) label.innerHTML = "L/R";
+    else if (i === l) label.innerHTML = "L";
+    else if (i === r) label.innerHTML = "R";
+    else label.innerHTML = "&nbsp;";
+    ptr.appendChild(label);
+  }
+  tot.textContent = total;
+}
+
+function nextStep() {
+  if (!active) return;
+
+  highlight(5);
+  if (l >= 0 && r < s.length && s[l] === s[r]) {
+    highlight(6);
+    total++;
+    document.getElementById("expandLabel").textContent = `🔍 Expand: s[${l}..${r}] = \"${s.slice(l, r+1)}\" ✅`;;
+    l--; r++;
+  } else {
+    stage++;
+    if (stage === 1) {
+      center++;
+      if (center >= s.length) {
+        active = false;
+        return;
+      }
+      highlight(12);
+      document.getElementById("expandLabel").textContent = `🔍 Expand: 奇數中心 i=${center}`;
+      render();
+      l = center; r = center;
+    } else if (stage === 2) {
+      highlight(13);
+      document.getElementById("expandLabel").textContent = `🔍 Expand: 偶數中心 i=${center}`;
+      render();
+      l = center; r = center + 1;
+    } else {
+      stage = 0;
+    }
+  }
+  render();
+}
+
+function reset() {
+  center = 0;
+  stage = 1;
+  l = center;
+  r = center;
+  total = 0;
+  active = true;
+  highlight(null);
+  document.getElementById("expandLabel").textContent = `🔍 Expand: -`;
+  render();
+}
+
+window.onload = reset;
+</script>
+
+</body>
+</html>

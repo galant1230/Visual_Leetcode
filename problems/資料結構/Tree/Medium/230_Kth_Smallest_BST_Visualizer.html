@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>230. BST 中找第 K 小元素動畫</title>
+  <style>
+    body { font-family: sans-serif; background: #f8f9fa; padding: 2rem; }
+    .tree-container { text-align: center; margin-top: 2rem; }
+    .level { display: flex; justify-content: center; margin: 6px 0; }
+    .node {
+      width: 40px; height: 40px;
+      border: 2px solid #3498db;
+      border-radius: 50%;
+      background: white; color: #3498db;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; margin: 4px;
+    }
+    .visited { background: #2ecc71; color: white; }
+    .target { background: #f39c12; color: white; }
+    .info { text-align: center; margin-top: 1rem; font-size: 16px; }
+    input, button { font-size: 1rem; margin: 0.5rem; padding: 0.3rem 0.6rem; }
+    button { background: #2980b9; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h1>🌟 230. BST 中找第 K 小元素 - 中序動畫</h1>
+
+<div style="text-align:center;">
+  <label>Level Order Tree：</label>
+  <input id="inputTree" value="[5,3,6,2,4,null,null,1]" style="width:300px;" />
+  <label>K：</label>
+  <input id="kInput" value="3" style="width:50px;" />
+  <br>
+  <button onclick="start()">開始</button>
+  <button onclick="next()">下一步</button>
+</div>
+
+<div class="tree-container" id="tree"></div>
+<div class="info" id="info">尚未開始</div>
+
+<script>
+let steps = [], index = 0, nodes = [], id = 0, result = [], k = 1;
+
+class TreeNode {
+  constructor(val) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+    this.id = id++;
+  }
+}
+
+function buildTree(arr) {
+  if (!arr.length || arr[0] === null) return null;
+  let root = new TreeNode(arr[0]);
+  let queue = [root];
+  let i = 1;
+  while (queue.length && i < arr.length) {
+    let node = queue.shift();
+    if (arr[i] !== null) {
+      node.left = new TreeNode(arr[i]);
+      queue.push(node.left);
+    }
+    i++;
+    if (i < arr.length && arr[i] !== null) {
+      node.right = new TreeNode(arr[i]);
+      queue.push(node.right);
+    }
+    i++;
+  }
+  return root;
+}
+
+function renderTree(root) {
+  const container = document.getElementById("tree");
+  container.innerHTML = "";
+  const levels = [];
+  function dfs(node, depth, pos) {
+    if (!node) return;
+    if (!levels[depth]) levels[depth] = [];
+    levels[depth][pos] = node;
+    dfs(node.left, depth + 1, pos * 2);
+    dfs(node.right, depth + 1, pos * 2 + 1);
+  }
+  dfs(root, 0, 0);
+  levels.forEach((row, i) => {
+    const div = document.createElement("div");
+    div.className = "level";
+    for (let j = 0; j < Math.pow(2, i); j++) {
+      const node = row[j];
+      const d = document.createElement("div");
+      d.className = "node";
+      if (node) {
+        d.id = "n" + node.id;
+        d.innerText = node.val;
+      } else {
+        d.innerText = "";
+        d.style.border = "none";
+      }
+      div.appendChild(d);
+    }
+    container.appendChild(div);
+  });
+}
+
+function inorderTraversal(node) {
+  if (!node) return;
+  inorderTraversal(node.left);
+  steps.push(node);
+  inorderTraversal(node.right);
+}
+
+function next() {
+  if (index >= steps.length) {
+    document.getElementById("info").innerHTML =
+      "✅ 中序完成：" + result.join(" → ") + "<br>" +
+      `<b>第 ${k} 小的元素是：</b> <span style="color:#e67e22;">${result[k - 1]}</span>`;
+    return;
+  }
+  const node = steps[index++];
+  const el = document.getElementById("n" + node.id);
+  if (el) {
+    el.classList.add("visited");
+    if (index === k) el.classList.add("target");
+  }
+  result.push(node.val);
+  document.getElementById("info").innerHTML = `目前中序結果：[${result.join(", ")}]`;
+}
+
+function start() {
+  const input = JSON.parse(document.getElementById("inputTree").value);
+  k = parseInt(document.getElementById("kInput").value);
+  const tree = buildTree(input);
+  id = 0; steps = []; index = 0; result = [];
+  inorderTraversal(tree);
+  renderTree(tree);
+  document.getElementById("info").innerText = "請點選『下一步』逐步找出第 K 小元素...";
+}
+</script>
+
+
+<h2>🔧 Python 解法</h2>
+<pre><code class="language-python">class Solution:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        inorder_result = []
+
+        def InOrder(root):  # 左中右：中序遍歷
+            if not root:
+                return
+            InOrder(root.left)
+            inorder_result.append(root.val)
+            InOrder(root.right)
+
+        InOrder(root)
+        return inorder_result[k - 1]
+</code></pre>
+
+<h2>📘 解法說明</h2>
+<div class="box">
+<ul>
+  <li>中序遍歷 BST → 結果是 <strong>遞增排序</strong></li>
+  <li>將結果存進陣列後，直接回傳第 <code>k-1</code> 個即可</li>
+</ul>
+</div>
+
+<h2>💡 Tips</h2>
+<div class="tips">
+<ul>
+  <li>若要多次查詢第 k 小，應使用「augmented tree + subtree size」優化</li>
+  <li>本方法簡潔直觀，適合單次查詢</li>
+  <li>如要節省記憶體，可在找到第 k 個值後立刻返回（加計數器）</li>
+</ul>
+</div>
+
+<h2>⏱ 時間與空間複雜度</h2>
+<div class="box">
+<ul>
+  <li><strong>時間複雜度：</strong>O(n)</li>
+  <li><strong>空間複雜度：</strong>O(n)</li>
+</ul>
+<p>需完整中序遍歷一次（n 節點），且陣列儲存所有節點值。</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+</body>
+
+</html>

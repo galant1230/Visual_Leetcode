@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>🏃 LeetCode 55: Jump Game - 視覺化</title>
+  <style>
+    body {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 1000px;
+      width: 100%;
+      display: flex;
+      gap: 24px;
+    }
+    input {
+      font-size: 14px;
+      padding: 6px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    button {
+      font-size: 14px;
+      padding: 6px 12px;
+      margin: 8px 4px 0 0;
+    }
+    .box-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .box {
+      width: 48px;
+      height: 48px;
+      background: #e0e0e0;
+      border-radius: 6px;
+      text-align: center;
+      line-height: 48px;
+      font-weight: bold;
+      position: relative;
+    }
+    .highlight {
+      background: #4caf50 !important;
+      color: white;
+    }
+    .reachable {
+      background: #c8e6c9;
+    }
+    .fail {
+      background: #f44336 !important;
+      color: white;
+    }
+    .desc, .result {
+      font-size: 14px;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+    .right {
+      background: #f9f9f9;
+      padding: 16px;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13px;
+      flex: 1;
+    }
+    .code-line {
+      padding: 2px 6px;
+      display: block;
+    }
+    .code-line.highlight {
+      background-color: #fff59d;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div style="flex: 2;">
+    <h2>🏃 LeetCode 55: Jump Game</h2>
+
+    <div class="desc">
+      每個格子代表你能跳的最大距離，判斷是否能從 0 跳到最後一格。<br>
+      <code>right = max(right, i + nums[i])</code> 若 <code>i > right</code> ➜ 失敗
+    </div>
+
+    <input id="inputNums" value="2,3,1,1,4" />
+    <button onclick="start()">開始</button>
+    <button onclick="step()">下一步</button>
+
+    <div class="box-row" id="numRow"></div>
+    <div class="desc" id="statusText"></div>
+    <div class="desc"><b>📈 最遠可達 right：</b><span id="farthestVal">0</span></div>
+
+    <div class="desc">
+      🧠 <b>時間複雜度</b>：<code>O(n)</code><br>
+      🧠 <b>空間複雜度</b>：<code>O(1)</code>
+    </div>
+  </div>
+  <div class="right">
+    <h3 style="margin-top:0;">🔧 原始程式碼</h3>
+    <pre><code>
+<span class="code-line" id="c0">class Solution:</span>
+<span class="code-line" id="c1">    def canJump(self, nums: List[int]) -> bool:</span>
+<span class="code-line" id="c2">        right = 0                          # 當前最遠可達點</span>
+<span class="code-line" id="c3">        last = len(nums) - 1              # 最後一格的 index</span>
+<span class="code-line" id="c4">        for i in range(len(nums)):</span>
+<span class="code-line" id="c5">            if i > right:</span>
+<span class="code-line" id="c6">                return False              # 如果當前 i 跳不到，直接失敗</span>
+<span class="code-line" id="c7">            if nums[i] + i > right:</span>
+<span class="code-line" id="c8">                right = nums[i] + i       # 更新最遠可達點</span>
+<span class="code-line" id="c9">            if right >= last:</span>
+<span class="code-line" id="c10">                return True               # 如果已經能跳過最後一格，成功</span>
+    </code></pre>
+  </div>
+</div>
+
+<script>
+let nums = [], i = 0, right = 0, last = 0, done = false;
+
+function start() {
+  nums = document.getElementById("inputNums").value.split(',').map(Number);
+  i = 0;
+  right = 0;
+  last = nums.length - 1;
+  done = false;
+
+  document.getElementById("numRow").innerHTML = nums.map((v, idx) =>
+    `<div class="box" id="box${idx}">${v}</div>`).join('');
+  document.getElementById("statusText").innerText = `🔢 i = ${i}，nums[i] = ${nums[i]}`;
+  document.getElementById("farthestVal").innerText = right;
+  document.querySelectorAll(".code-line").forEach(c => c.classList.remove("highlight"));
+}
+
+function step() {
+  if (done || i >= nums.length) return;
+
+  document.querySelectorAll(".box").forEach(c => c.classList.remove("highlight", "fail", "reachable"));
+  document.querySelectorAll(".code-line").forEach(c => c.classList.remove("highlight"));
+
+  const box = document.getElementById("box" + i);
+  box.classList.add("highlight");
+  document.getElementById("statusText").innerText = `🔢 i = ${i}，nums[i] = ${nums[i]}`;
+
+  document.getElementById("c4").classList.add("highlight"); // for loop
+
+  if (i > right) {
+    document.getElementById("c5").classList.add("highlight");
+    document.getElementById("c6").classList.add("highlight");
+    box.classList.add("fail");
+    document.getElementById("statusText").innerText = `❌ 位置 ${i} 無法到達，失敗`;
+    done = true;
+    return;
+  }
+
+  document.getElementById("c7").classList.add("highlight"); // if nums[i] + i > right
+  if (nums[i] + i > right) {
+    document.getElementById("c8").classList.add("highlight");
+    right = nums[i] + i;
+  }
+
+  document.getElementById("farthestVal").innerText = right;
+
+  for (let j = i + 1; j <= right && j < nums.length; j++) {
+    document.getElementById("box" + j).classList.add("reachable");
+  }
+
+  document.getElementById("c9").classList.add("highlight"); // if right >= last
+  if (right >= last) {
+    document.getElementById("c10").classList.add("highlight");
+    document.getElementById("statusText").innerText = `✅ 最後一格可以到達！`;
+    done = true;
+    return;
+  }
+
+  i++;
+}
+</script>
+</body>
+</html>

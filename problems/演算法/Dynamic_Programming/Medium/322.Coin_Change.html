@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Coin Change 動態規劃視覺化</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f5f7fa; }
+    h1 { text-align: center; color: #007acc; }
+    .description {
+      max-width: 800px;
+      margin: 1rem auto;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    table { border-collapse: collapse; margin: 2rem auto; }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      text-align: center;
+      min-width: 40px;
+    }
+    td.highlight { background-color: #ffe082; font-weight: bold; }
+    td.coin-used { background-color: #aed581; }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 800px;
+      margin: 2rem auto;
+      font-family: monospace;
+    }
+    .code-line { padding: 2px 0; }
+    .active-code { background: #444; }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 1rem;
+    }
+  </style>
+</head>
+<body>
+<h1>💰 Coin Change 動態規劃視覺化</h1>
+
+<div class="description">
+  <p>給定硬幣陣列與金額，逐步計算出湊出每個金額所需的最少硬幣數量。</p>
+  <p><strong>目標：</strong>找出湊出 <code>amount</code> 所需最少的硬幣數</p>
+  <p><strong>算法：</strong> DP[i] = min(DP[i], DP[i - coin] + 1)</p>
+</div>
+
+<div style="text-align: center;">
+  <label>Coins: <input id="coinsInput" value="1,2,5" size="10"></label>
+  <label>Amount: <input id="amountInput" value="11" size="5"></label>
+  <button onclick="start()">開始模擬</button>
+</div>
+
+<div id="tableArea" style="overflow-x:auto;"></div>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">1: dp = [0] + [float('inf')] * amount</div>
+  <div class="code-line" id="c2">2: dp[0] = 0</div>
+  <div class="code-line" id="c3">3: for i in range(1, amount + 1):</div>
+  <div class="code-line" id="c4">4: &nbsp;&nbsp;for coin in coins:</div>
+  <div class="code-line" id="c5">5: &nbsp;&nbsp;&nbsp;&nbsp;if coin <= i:</div>
+  <div class="code-line" id="c6">6: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i] = min(dp[i], dp[i - coin] + 1)</div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="step()">下一步</button>
+  <button onclick="reset()">重置</button>
+</div>
+
+<script>
+let coins = [1,2,5];
+let amount = 11;
+let dp = [];
+let i = 1;
+let j = 0;
+let stepRunning = false;
+
+function highlight(line) {
+  document.querySelectorAll('.code-line').forEach(l => l.classList.remove("active-code"));
+  if (line) document.getElementById("c" + line).classList.add("active-code");
+}
+
+function start() {
+  coins = document.getElementById("coinsInput").value.split(',').map(Number);
+  amount = parseInt(document.getElementById("amountInput").value);
+  dp = new Array(amount + 1).fill(amount + 1);
+  dp[0] = 0;
+  i = 1;
+  j = 0;
+  drawTable();
+  highlight(1);
+  setTimeout(() => highlight(2), 400);
+}
+
+function reset() {
+  document.getElementById("coinsInput").value = "1,2,5";
+  document.getElementById("amountInput").value = "11";
+  start();
+}
+
+function step() {
+  if (i > amount) {
+    highlight(null);
+    return;
+  }
+
+  highlight(3);
+  const coin = coins[j];
+  highlight(4);
+
+  if (coin <= i) {
+    highlight(5);
+    const prev = dp[i];
+    const candidate = dp[i - coin] + 1;
+    if (candidate < dp[i]) {
+      dp[i] = candidate;
+    }
+    highlight(6);
+  }
+
+  j++;
+  if (j >= coins.length) {
+    j = 0;
+    i++;
+  }
+
+  drawTable();
+}
+
+function drawTable() {
+  const area = document.getElementById("tableArea");
+  let html = "<table><tr>";
+  for (let k = 0; k <= amount; k++) {
+    html += `<th>${k}</th>`;
+  }
+  html += "</tr><tr>";
+  for (let k = 0; k <= amount; k++) {
+    let cls = "";
+    if (k === i) cls = "highlight";
+    else if (j < coins.length && coins[j] <= i && k === i - coins[j]) cls = "coin-used";
+    html += `<td class="${cls}">${dp[k] > amount ? "∞" : dp[k]}</td>`;
+  }
+  html += "</tr></table>";
+  area.innerHTML = html;
+}
+</script>
+</body>
+</html>

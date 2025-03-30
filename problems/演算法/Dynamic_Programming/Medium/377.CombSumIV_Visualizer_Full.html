@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>➕ LeetCode 377: Combination Sum IV - 完整動畫視覺化</title>
+  <style>
+    body {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      display: flex;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1100px;
+      gap: 24px;
+    }
+    .left { flex: 2; }
+    .right { flex: 1.2; border-left: 4px solid #4fc3f7; padding-left: 16px; }
+
+    input {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      font-size: 14px;
+      padding: 6px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    button {
+      font-size: 14px;
+      padding: 6px 12px;
+      margin: 6px 4px;
+    }
+    .desc, .result {
+      font-size: 14px;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+    .dp-bar {
+      display: flex;
+      gap: 6px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .dp-cell {
+      width: 48px;
+      height: 42px;
+      text-align: center;
+      line-height: 42px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #e0e0e0;
+    }
+    .highlight { background: #4caf50; color: #fff; font-weight: bold; }
+    .code span {
+      display: block;
+      padding: 2px 6px;
+      font-family: 'Microsoft JhengHei', monospace;
+    }
+    .code .highlight-line {
+      background-color: #fff59d;
+    }
+    .combo-list {
+      margin-top: 8px;
+      font-size: 13px;
+      font-family: monospace;
+      background: #f1f8e9;
+      padding: 8px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="left">
+    <h2>➕ LeetCode 377: Combination Sum IV - 動態規劃視覺化</h2>
+
+    <div class="desc">
+      ✅ <code>dp[i]</code> 表示總和為 <code>i</code> 的組合數（順序視為不同）。<br>
+      🔁 狀態轉移：<code>dp[i] += dp[i - num]</code> for 每個 num in nums<br>
+      ⏱ 時間複雜度：<code>O(target × n)</code>，空間複雜度：<code>O(target)</code>
+    </div>
+
+    <input type="text" id="numsInput" value="1,2,3" />
+    <input type="text" id="targetInput" value="4" />
+    <button onclick="start()">開始</button>
+    <button onclick="step()">下一步</button>
+
+    <div class="dp-bar" id="dpBar"></div>
+    <div class="result" id="explanation"></div>
+    <div class="result" id="comboResult"></div>
+  </div>
+
+  <div class="right">
+    <div class="code">
+      <span>def combinationSum4(nums, target):</span>
+      <span> dp = [0] * (target + 1)</span>
+      <span> dp[0] = 1</span>
+      <span> for i in range(1, target + 1):</span>
+      <span>  for num in nums:</span>
+      <span>   if i - num >= 0:</span>
+      <span>    dp[i] += dp[i - num]</span>
+      <span> return dp[target]</span>
+    </div>
+  </div>
+</div>
+
+<script>
+let nums = [], target = 0, dp = [], i = 1, index = 0;
+let combos = [];
+
+function start() {
+  nums = document.getElementById("numsInput").value.split(",").map(Number);
+  target = parseInt(document.getElementById("targetInput").value);
+  dp = Array(target + 1).fill(0);
+  dp[0] = 1;
+  combos = Array(target + 1).fill(null).map(() => []);
+  combos[0] = [[]];
+  i = 1;
+  index = 0;
+  updateDP();
+  updateCode(-1);
+  document.getElementById("explanation").innerHTML = "";
+  document.getElementById("comboResult").innerHTML = "";
+}
+
+function step() {
+  if (i > target) {
+    updateCode(7);
+    document.getElementById("explanation").innerHTML = `<b>✅ 完成！dp[${target}] = ${dp[target]}</b>`;
+    document.getElementById("comboResult").innerHTML = "<b>所有組合：</b><div class='combo-list'>" +
+      combos[target].map(c => JSON.stringify(c)).join("<br>") + "</div>";
+    return;
+  }
+
+  updateCode(index < nums.length ? (i - nums[index] >= 0 ? 6 : 5) : 4);
+
+  if (index < nums.length) {
+    const num = nums[index];
+    if (i - num >= 0) {
+      dp[i] += dp[i - num];
+      for (const combo of combos[i - num]) {
+        combos[i].push([...combo, num]);
+      }
+      document.getElementById("explanation").innerHTML =
+        `dp[${i}] += dp[${i - num}] (${dp[i - num]}) → dp[${i}] = ${dp[i]}`;
+    } else {
+      document.getElementById("explanation").innerHTML =
+        `❌ 跳過 num=${num}，因為 ${i} - ${num} < 0`;
+    }
+    index++;
+  } else {
+    i++;
+    index = 0;
+  }
+
+  updateDP();
+}
+
+function updateDP() {
+  const bar = document.getElementById("dpBar");
+  bar.innerHTML = "";
+  for (let k = 0; k < dp.length; k++) {
+    const div = document.createElement("div");
+    div.className = "dp-cell" + (k === i ? " highlight" : "");
+    div.textContent = dp[k];
+    bar.appendChild(div);
+  }
+}
+
+function updateCode(line) {
+  const lines = document.querySelectorAll(".code span");
+  lines.forEach((l, idx) => {
+    l.classList.toggle("highlight-line", idx === line);
+  });
+}
+</script>
+</body>
+</html>

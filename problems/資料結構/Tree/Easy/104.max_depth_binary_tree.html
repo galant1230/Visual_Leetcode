@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>104. 二元樹最大深度 - 回傳值視覺化版</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f7fa; padding: 2rem; }
+    h1 { text-align: center; color: #007acc; }
+    .tree-container { text-align: center; margin-top: 2rem; }
+    .layer { display: flex; justify-content: center; margin: 1rem 0; }
+    .node-wrap { position: relative; margin: 0 10px; }
+    .node {
+      min-width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #3498db;
+      color: #3498db;
+      font-weight: bold;
+    }
+    .node.highlight { background: #f39c12; color: white; }
+    .return-label {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      color: red;
+      font-weight: bold;
+    }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code { background: #444; color: white; }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 700px;
+      margin: 2rem auto;
+    }
+    #stackBox {
+      background: #fff;
+      border: 1px solid #aaa;
+      padding: 1rem;
+      max-width: 200px;
+      margin: auto;
+      border-radius: 6px;
+    }
+    .stack-frame {
+      padding: 5px;
+      border-bottom: 1px solid #ccc;
+      text-align: center;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 1rem;
+    }
+    input {
+      padding: 5px;
+      font-size: 16px;
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>104. 二元樹最大深度</h1>
+
+<div style="text-align:center;">
+  <p>輸入樹（BFS）：如 <code>[1,2,3,null,null,4]</code></p>
+  <input id="treeInput" value="[1,2,3,null,null,4]" />
+  <button onclick="buildTree()">建立樹</button>
+</div>
+
+<div id="tree" class="tree-container"></div>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">1: def maxDepth(root):</div>
+  <div class="code-line" id="c2">2: &nbsp;&nbsp;if not root: return 0</div>
+  <div class="code-line" id="c3">3: &nbsp;&nbsp;left = maxDepth(root.left)</div>
+  <div class="code-line" id="c4">4: &nbsp;&nbsp;right = maxDepth(root.right)</div>
+  <div class="code-line" id="c5">5: &nbsp;&nbsp;return max(left, right) + 1</div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="nextStep()">下一步</button>
+  <button onclick="reset()">重置</button>
+</div>
+
+<h3 style="text-align:center;">遞迴呼叫堆疊</h3>
+<div id="stackBox"></div>
+
+<script>
+let tree = [], steps = [], current = 0;
+
+function buildTree() {
+  const input = document.getElementById("treeInput").value;
+  const arr = JSON.parse(input);
+  const nodes = [];
+  arr.forEach(val => nodes.push(val === null ? null : { val, left: null, right: null, ret: null }));
+  let i = 0, j = 1;
+  while (j < nodes.length) {
+    if (nodes[i]) {
+      nodes[i].left = nodes[j++] || null;
+      if (j < nodes.length) nodes[i].right = nodes[j++] || null;
+    }
+    i++;
+  }
+  tree = nodes[0];
+  renderTree(nodes);
+  generateSteps(tree);
+  current = 0;
+  document.getElementById("stackBox").innerHTML = "";
+}
+
+function renderTree(nodes) {
+  const levels = [], queue = [[nodes[0], 0]];
+  while (queue.length) {
+    const [node, level] = queue.shift();
+    if (!levels[level]) levels[level] = [];
+    levels[level].push(node);
+    if (node) {
+      queue.push([node.left, level + 1]);
+      queue.push([node.right, level + 1]);
+    }
+  }
+  const container = document.getElementById("tree");
+  container.innerHTML = "";
+  levels.forEach(layer => {
+    const div = document.createElement("div");
+    div.className = "layer";
+    layer.forEach(n => {
+      const wrap = document.createElement("div");
+      wrap.className = "node-wrap";
+      const el = document.createElement("div");
+      el.className = "node";
+      el.innerText = n ? n.val : "";
+      if (n) el.id = "node-" + n.val + Math.random().toString(36).substring(2, 5);
+      n && (n._domId = el.id);
+      const ret = document.createElement("div");
+      ret.className = "return-label";
+      ret.id = el.id + "-ret";
+      wrap.appendChild(ret);
+      wrap.appendChild(el);
+      div.appendChild(wrap);
+    });
+    container.appendChild(div);
+  });
+}
+
+function highlightLine(n) {
+  document.querySelectorAll(".code-line").forEach(e => e.classList.remove("active-code"));
+  const el = document.getElementById("c" + n);
+  el && el.classList.add("active-code");
+}
+
+function highlightNode(id) {
+  document.querySelectorAll(".node").forEach(e => e.classList.remove("highlight"));
+  const el = document.getElementById(id);
+  el && el.classList.add("highlight");
+}
+
+function pushStack(text) {
+  const box = document.getElementById("stackBox");
+  const frame = document.createElement("div");
+  frame.className = "stack-frame";
+  frame.innerText = text;
+  box.prepend(frame);
+}
+
+function popStack() {
+  const box = document.getElementById("stackBox");
+  if (box.firstChild) box.removeChild(box.firstChild);
+}
+
+function setReturnVal(node, val) {
+  if (!node || !node._domId) return;
+  const el = document.getElementById(node._domId + "-ret");
+  if (el) el.innerText = val;
+}
+
+function generateSteps(root) {
+  steps = [];
+  function dfs(node) {
+    if (!node) {
+      steps.push({ line: 2, node: null, action: 'return', value: 0 });
+      return 0;
+    }
+    steps.push({ line: 1, node, action: 'enter' });
+    pushStack("maxDepth(" + node.val + ")");
+    highlightNode(node._domId);
+    steps.push({ line: 3, node, action: 'left' });
+    const left = dfs(node.left);
+    steps.push({ line: 4, node, action: 'right' });
+    const right = dfs(node.right);
+    const ret = Math.max(left, right) + 1;
+    steps.push({ line: 5, node, action: 'return', value: ret });
+    node.ret = ret;
+    popStack();
+    return ret;
+  }
+  dfs(root);
+}
+
+function nextStep() {
+  if (current >= steps.length) return;
+  const step = steps[current++];
+  highlightLine(step.line);
+  highlightNode(step.node ? step.node._domId : null);
+  if (step.action === "return") {
+    setReturnVal(step.node, step.value);
+  }
+}
+
+function reset() {
+  buildTree();
+}
+</script>
+
+</body>
+</html>
