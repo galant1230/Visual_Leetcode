@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>BST 最近共同祖先模擬器</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+      margin: 0;
+      color: #333;
+    }
+    h2, h3 {
+      color: #007acc;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    input, button {
+      font-size: 1rem;
+      margin: 0.5rem 0.3rem;
+      padding: 0.4rem 0.6rem;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .tree-container {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .level {
+      display: flex;
+      justify-content: center;
+      margin: 6px 0;
+    }
+    .node {
+      width: 40px; height: 40px;
+      border: 2px solid #3498db;
+      border-radius: 50%;
+      background: white;
+      color: #3498db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin: 4px;
+      cursor: pointer;
+    }
+    .highlight { background: #ffeaa7; color: #000; }
+    .pnode { background: #74b9ff !important; color: white; }
+    .qnode { background: #fab1a0 !important; color: white; }
+    .lcanode { background: #2ecc71 !important; color: white; }
+    .info {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #ecf0f1;
+      border-left: 6px solid #3498db;
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🌳 235. 最近共同祖先（LCA） - BST 模擬器</h2>
+
+    <hr>
+    <h3>📘 題目描述</h3>
+    <p>給定一棵二元搜尋樹（BST）以及兩個節點 <code>p</code> 和 <code>q</code>，找出它們的最近共同祖先（Lowest Common Ancestor, LCA）。</p>
+
+    <hr>
+    <h3>🧠 解法說明</h3>
+    <ul>
+      <li>利用 BST 的性質：左 < root < 右</li>
+      <li>p, q 都比 root 小 ➜ 向左子樹搜尋</li>
+      <li>p, q 都比 root 大 ➜ 向右子樹搜尋</li>
+      <li>若一個在左、一個在右，或有一個等於 root ➜ root 即為最近共同祖先</li>
+    </ul>
+
+    <hr>
+    <h3>⏳ 時間與空間複雜度</h3>
+    <ul>
+      <li><strong>時間複雜度：</strong>O(h)</li>
+      <li><strong>空間複雜度：</strong>O(h)</li>
+    </ul>
+    <p>其中 h 為樹高，平均為 O(log n)，最差為 O(n)</p>
+
+    <hr>
+    <h3>▶️ 模擬器</h3>
+    <div>
+      <label>Level Order Tree: <input id="inputTree" value="[6,2,8,0,4,7,9,null,null,3,5]" style="width:360px;" /></label><br>
+      <button onclick="start()">🔃 初始化樹</button>
+      <button onclick="findLCA()">📍 尋找 LCA</button>
+    </div>
+    <div class="info">
+      <ul>
+        <li>點兩個節點 ➜ 第一個為 <span style="color:#0984e3;"><b>藍色</b>（p）</span>，第二個為 <span style="color:#d63031;"><b>紅色</b>（q）</span></li>
+        <li>按下「尋找 LCA」➜ 顯示 <span style="color:#2ecc71;"><b>綠色節點</b></span> 為最近共同祖先</li>
+      </ul>
+    </div>
+    <div class="tree-container" id="tree"></div>
+    <div class="info" id="info">點兩個節點作為 p, q</div>
+
+    <hr>
+    <h3>💻 Python 解法</h3>
+    <pre><code>class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        if not root:
+            return None
+
+        if p.val < root.val and q.val < root.val:
+            return self.lowestCommonAncestor(root.left, p, q)
+
+        if p.val > root.val and q.val > root.val:
+            return self.lowestCommonAncestor(root.right, p, q)
+
+        return root</code></pre>
+  </div>
+
+  <script>
+    let id = 0, selected = [], root = null;
+    class TreeNode {
+      constructor(val) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+        this.id = id++;
+      }
+    }
+
+    function buildTree(arr) {
+      if (!arr.length || arr[0] === null) return null;
+      let root = new TreeNode(arr[0]);
+      let queue = [root];
+      let i = 1;
+      while (queue.length && i < arr.length) {
+        let node = queue.shift();
+        if (arr[i] !== null) {
+          node.left = new TreeNode(arr[i]);
+          queue.push(node.left);
+        }
+        i++;
+        if (i < arr.length && arr[i] !== null) {
+          node.right = new TreeNode(arr[i]);
+          queue.push(node.right);
+        }
+        i++;
+      }
+      return root;
+    }
+
+    function renderTree(root) {
+      const treeEl = document.getElementById("tree");
+      treeEl.innerHTML = "";
+      const levels = [];
+      function dfs(node, depth, pos) {
+        if (!node) return;
+        if (!levels[depth]) levels[depth] = [];
+        levels[depth][pos] = node;
+        dfs(node.left, depth + 1, pos * 2);
+        dfs(node.right, depth + 1, pos * 2 + 1);
+      }
+      dfs(root, 0, 0);
+      levels.forEach(row => {
+        const r = document.createElement("div");
+        r.className = "level";
+        row.forEach(n => {
+          if (!n) return;
+          const d = document.createElement("div");
+          d.className = "node";
+          d.id = "n" + n.id;
+          d.innerText = n.val;
+          d.onclick = () => selectNode(n);
+          r.appendChild(d);
+        });
+        treeEl.appendChild(r);
+      });
+    }
+
+    function selectNode(node) {
+      const el = document.getElementById("n" + node.id);
+      if (selected.length === 2) {
+        selected = [];
+        document.querySelectorAll(".node").forEach(n => n.classList.remove("pnode", "qnode", "lcanode"));
+      }
+      selected.push(node);
+      if (selected.length === 1) el.classList.add("pnode");
+      if (selected.length === 2) el.classList.add("qnode");
+      document.getElementById("info").innerText = selected.length === 2 ? "點『尋找 LCA』吧！" : "已選一個節點";
+    }
+
+    function findLCA() {
+      if (selected.length < 2) return;
+      const p = selected[0], q = selected[1];
+      function dfs(node) {
+        if (!node) return null;
+        const nid = "n" + node.id;
+        document.getElementById(nid).classList.add("highlight");
+        if (p.val < node.val && q.val < node.val) return dfs(node.left);
+        if (p.val > node.val && q.val > node.val) return dfs(node.right);
+        return node;
+      }
+      setTimeout(() => {
+        const result = dfs(root);
+        if (result) {
+          document.getElementById("n" + result.id).classList.add("lcanode");
+          document.getElementById("info").innerHTML = `✅ LCA 是 <b>${result.val}</b>`;
+        }
+      }, 100);
+    }
+
+    function start() {
+      const arr = JSON.parse(document.getElementById("inputTree").value);
+      id = 0; selected = [];
+      document.getElementById("info").innerText = "點兩個節點作為 p, q";
+      root = buildTree(arr);
+      renderTree(root);
+    }
+  </script>
+</body>
+</html>

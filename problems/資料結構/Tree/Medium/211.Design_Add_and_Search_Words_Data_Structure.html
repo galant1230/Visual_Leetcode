@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trie 視覺化 + 模糊搜尋</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9fb; padding: 2rem; }
+    h1, h2 { text-align: center; }
+    .code-box {
+      background: #f0f0f0; padding: 1rem; border-radius: 8px;
+      max-width: 700px; margin: 1rem auto; font-family: monospace;
+    }
+    .line { padding: 2px 0; white-space: pre; }
+    .highlight { background-color: #ffe082; font-weight: bold; }
+    .tree { margin-top: 2rem; text-align: center; }
+    .node {
+      display: inline-block; margin: 0.25rem; padding: 0.5rem 1rem;
+      border: 2px solid #34495e; border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+    .node.success { background-color: #c8e6c9; }
+    .node.fail { background-color: #ffcdd2; }
+    .btns, .input-box { text-align: center; margin: 1rem; }
+    button {
+      padding: 0.5rem 1rem; margin: 0.5rem; font-size: 1rem;
+      background: #34495e; color: white; border: none; border-radius: 6px;
+      cursor: pointer;
+    }
+    input {
+      padding: 6px; font-size: 1rem; width: 200px;
+    }
+    ul { list-style-type: none; padding-left: 1em; }
+  </style>
+</head>
+<body>
+<h1>🌲 Trie 視覺化 + 模糊搜尋（支援 .）</h1>
+<div class="input-box">
+  <input id="inputWord" placeholder="請輸入字串，如 b.." />
+</div>
+<div id="messageBox" style="text-align:center; font-weight:bold; color:#2c3e50; margin-top:1em;"></div>
+<div class="btns">
+  <button onclick="start('insert')">insert()</button>
+  <button onclick="start('wildcard')">wildcardSearch()</button>
+  <button onclick="runAll()">▶️ 一次執行到底</button>
+  <button disabled id="nextBtn">下一步 ▶️</button>
+  <button onclick="reset()">重設 🔁</button>
+</div>
+<h2 id="modeTitle">請選擇操作</h2>
+<div class="code-box" id="codeBox"></div>
+<div class="tree" id="tree"><div class="node">root</div></div>
+<script>
+let trie = {};
+let path = [], word = "", index = 0, step = 0, mode = "", insertNode = null;
+let found = false;
+
+const codes = {
+  insert: [
+    "def insert(word):",
+    "  cur = root",
+    "  for ch in word:",
+    "    if ch not in cur:",
+    "      cur[ch] = {}",
+    "    cur = cur[ch]",
+    "  cur['end'] = True"
+  ],
+  wildcard: [
+    "def search(word):",
+    "  def dfs(node, i):",
+    "    if i == len(word): return 'end' in node",
+    "    ch = word[i]",
+    "    if ch == '.':",
+    "      for child in node.values():",
+    "        if dfs(child, i + 1): return True",
+    "      return False",
+    "    if ch not in node: return False",
+    "    return dfs(node[ch], i + 1)",
+    "  return dfs(root, 0)"
+  ]
+};
+
+function renderCode() {
+  let box = document.getElementById("codeBox");
+  box.innerHTML = "";
+  if (!mode) return;
+  codes[mode].forEach((line, i) => {
+    box.innerHTML += `<div class='line' id='line${i}'>${line}</div>`;
+  });
+}
+function highlight(i) {
+  codes[mode].forEach((_, j) => {
+    document.getElementById("line" + j)?.classList.remove("highlight");
+  });
+  if (i >= 0) document.getElementById("line" + i)?.classList.add("highlight");
+}
+function start(selectedMode) {
+  mode = selectedMode; path = []; index = 0; step = 0; found = false;
+  word = document.getElementById("inputWord").value.trim();
+  document.getElementById("modeTitle").innerText = "模式：" + mode;
+  renderCode(); highlight(-1); renderTree();
+  document.getElementById("nextBtn").disabled = (mode !== "insert");
+  if (mode === "insert") insertNode = trie;
+  if (mode === "wildcard") wildcardSearch();
+}
+function runAll() { while (step !== -1) { nextStep(); } }
+
+function wildcardSearch() {
+  function dfs(node, i) {
+    highlight(i >= word.length ? 2 : (word[i] === '.' ? 4 : 9));
+    if (i === word.length) return 'end' in node;
+    let ch = word[i];
+    if (ch === '.') {
+      for (let key in node) {
+        if (key === 'end') continue;
+        if (dfs(node[key], i + 1)) return true;
+      }
+      return false;
+    } else {
+      if (!(ch in node)) return false;
+      return dfs(node[ch], i + 1);
+    }
+  }
+  found = dfs(trie, 0);
+  step = -1;
+  document.getElementById("messageBox").innerText = found ? "✅ 匹配成功！" : "❌ 沒有找到！";
+}
+
+document.getElementById("nextBtn").addEventListener("click", nextStep);
+
+function nextStep() {
+  if (!mode || !word) return;
+  if (mode === "insert") {
+    if (step === 0) { highlight(1); step++; return; }
+    if (step === 1) { highlight(2); step++; return; }
+    if (step === 2) {
+      if (index >= word.length) { step = 5; return; }
+      let ch = word[index];
+      if (!(ch in insertNode)) { highlight(3); step = 3; return; }
+      else { highlight(5); step = 4; return; }
+    }
+    if (step === 3) {
+      insertNode[word[index]] = {}; highlight(4); step = 4; return; }
+    if (step === 4) {
+      insertNode = insertNode[word[index]];
+      path.push(word[index]); index++; highlight(5); step = 2; return;
+    }
+    if (step === 5) {
+      insertNode['end'] = true;
+      highlight(6); step = -1;
+      document.getElementById("messageBox").innerText = "✅ 插入完成！";
+      renderTree();
+    }
+  }
+}
+
+function reset() {
+  trie = {}; path = []; word = ""; index = 0; step = 0; insertNode = null; found = false;
+  document.getElementById("inputWord").value = "";
+  document.getElementById("modeTitle").innerText = "請選擇操作";
+  renderTree(); document.getElementById("codeBox").innerHTML = "";
+  document.getElementById("messageBox").innerText = "";
+  document.getElementById("nextBtn").disabled = false;
+}
+function renderTree() {
+  const container = document.getElementById("tree");
+  container.innerHTML = renderNode(trie);
+}
+function renderNode(node) {
+  function walk(n) {
+    let html = "<ul>";
+    for (const key in n) {
+      if (key === 'end') continue;
+      const child = n[key];
+      html += `<li><div class='node'>${key}${'end' in child ? ' (✓)' : ''}</div>`;
+      html += walk(child);
+      html += "</li>";
+    }
+    html += "</ul>";
+    return html;
+  }
+  return "<div class='node'>root</div>" + walk(node);
+}
+reset();
+</script>
+</body>
+</html>

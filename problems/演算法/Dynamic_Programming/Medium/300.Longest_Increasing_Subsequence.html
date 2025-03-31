@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Longest Increasing Subsequence 可視化模擬器</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+      margin: 0;
+      color: #333;
+    }
+    h2, h3 {
+      color: #007acc;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      margin: 0.3rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background: #007acc;
+      color: white;
+    }
+    .code-box {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 2rem 0;
+      font-family: monospace;
+    }
+    .code-line {
+      padding: 2px 0;
+    }
+    .active-code {
+      background-color: #444;
+    }
+    .array, .label-row {
+      display: flex;
+      justify-content: center;
+      margin: 0.5rem 0;
+      flex-wrap: wrap;
+    }
+    .cell, .label {
+      width: 50px;
+      height: 50px;
+      margin: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+    }
+    .cell {
+      background: white;
+      border: 2px solid #ccc;
+    }
+    .cell.active {
+      background: #ffeaa7;
+      border-color: #fdcb6e;
+    }
+    .cell.lis {
+      background: #4caf50;
+      border-color: #2e7d32;
+      color: white;
+    }
+    .label {
+      height: auto;
+      font-size: 14px;
+    }
+    .dp-row, .result {
+      font-family: monospace;
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📈 300. 最長遞增子序列（Longest Increasing Subsequence）</h2>
+
+    <hr>
+    <h3>📘 題目描述</h3>
+    <p>給定一個整數陣列 <code>nums</code>，回傳其中<strong>最長嚴格遞增子序列</strong>的長度。</p>
+
+    <hr>
+    <h3>🧪 範例</h3>
+    <pre><code>輸入：nums = [10,9,2,5,3,7,101,18]
+輸出：4
+解釋：最長遞增子序列為 [2,3,7,101]</code></pre>
+
+    <hr>
+    <h3>⏳ 時間與空間複雜度</h3>
+    <p><strong>時間複雜度：</strong> <code>O(n^2)</code>（雙層迴圈）</p>
+    <p><strong>空間複雜度：</strong> <code>O(n)</code></p>
+
+    <hr>
+    <h3>▶️ 模擬器</h3>
+    <div class="label-row" id="indexRow"></div>
+    <div class="array" id="array"></div>
+    <div class="dp-row" id="dp">dp: []</div>
+    <div class="result" id="result">LIS 長度：0</div>
+    <div style="text-align:center">
+      <button onclick="step()">🧭 下一步</button>
+      <button onclick="reset()">🔃 重置</button>
+    </div>
+
+    <div class="code-box">
+      <div class="code-line">dp = [1] * len(nums)</div>
+      <div class="code-line">for i in range(1, len(nums)):</div>
+      <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;for j in range(i):</div>
+      <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if nums[i] > nums[j]:</div>
+      <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i] = max(dp[i], dp[j] + 1)</div>
+      <div class="code-line">return max(dp)</div>
+    </div>
+  </div>
+
+  <script>
+    const nums = [10, 9, 2, 5, 3, 7, 101, 18];
+    let dp = [], i = 1, j = 0;
+    let cells = [], labels = [];
+
+    function build() {
+      const arrayDiv = document.getElementById("array");
+      const labelDiv = document.getElementById("indexRow");
+      arrayDiv.innerHTML = "";
+      labelDiv.innerHTML = "<div class='label'></div>";
+      cells = [];
+      labels = [];
+
+      nums.forEach((num, idx) => {
+        const div = document.createElement("div");
+        div.className = "cell";
+        div.textContent = num;
+        arrayDiv.appendChild(div);
+        cells.push(div);
+
+        const label = document.createElement("div");
+        label.className = "label";
+        labelDiv.appendChild(label);
+        labels.push(label);
+      });
+
+      dp = Array(nums.length).fill(1);
+      updateDP();
+      updateIJLabels();
+      document.getElementById("result").textContent = "LIS 長度：0";
+    }
+
+    function updateDP() {
+      document.getElementById("dp").textContent = "dp: [" + dp.join(", ") + "]";
+    }
+
+    function updateIJLabels() {
+      labels.forEach((l, idx) => {
+        if (idx === i && idx === j) l.textContent = "i,j";
+        else if (idx === i) l.textContent = "i";
+        else if (idx === j) l.textContent = "j";
+        else l.textContent = "";
+      });
+    }
+
+    function reset() {
+      i = 1; j = 0;
+      cells.forEach(c => c.classList.remove("active", "lis"));
+      build();
+    }
+
+    function step() {
+      if (i >= nums.length) {
+        const maxLen = Math.max(...dp);
+        document.getElementById("result").textContent = "✅ LIS 長度：" + maxLen;
+
+        let lis = [], len = maxLen;
+        for (let k = dp.length - 1; k >= 0; k--) {
+          if (dp[k] === len && (lis.length === 0 || nums[k] < lis[lis.length - 1])) {
+            lis.push(nums[k]);
+            cells[k].classList.add("lis");
+            len--;
+          }
+        }
+        return;
+      }
+
+      cells[i].classList.add("active");
+      cells[j].classList.add("active");
+
+      if (nums[i] > nums[j]) {
+        dp[i] = Math.max(dp[i], dp[j] + 1);
+        updateDP();
+      }
+
+      setTimeout(() => {
+        cells[i].classList.remove("active");
+        cells[j].classList.remove("active");
+        j++;
+        if (j >= i) {
+          j = 0;
+          i++;
+        }
+        updateIJLabels();
+      }, 300);
+    }
+
+    window.onload = build;
+  </script>
+</body>
+</html>

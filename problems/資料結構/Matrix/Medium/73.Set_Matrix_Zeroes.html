@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>LeetCode 73 - Set Matrix Zeroes</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f4f4; padding: 2rem; }
+    h1 { text-align: center; color: #2c3e50; }
+    .section {
+      max-width: 800px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    table { border-collapse: collapse; margin: auto; }
+    td {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      border: 1px solid #ccc;
+      font-weight: bold;
+      background: #ecf0f1;
+    }
+    .zero { background: #e74c3c !important; color: white; }
+    .mark { background: #3498db !important; color: white; }
+    .code-line {
+      font-family: monospace;
+      white-space: pre;
+    }
+    .highlight-line {
+      background: #444;
+      color: white;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 800px;
+      margin: 1rem auto;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<h1>LeetCode 73 - Set Matrix Zeroes</h1>
+
+<div class="section">
+  <p><strong>📌 題目：</strong> 給定一個 m x n 的矩陣，如果某個元素為 0，將其整行和整列設為 0。請就地修改。</p>
+  <p><strong>🧠 解法：</strong> 使用第一行和第一列作為標記區塊，記錄哪些 row / col 要變 0，最後再處理第一行與第一列本身。</p>
+  <ul>
+    <li>先掃描並記錄第一列/欄是否有 0</li>
+    <li>再用第一列/欄作為「標記欄」</li>
+    <li>根據標記設定 0</li>
+  </ul>
+</div>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">if matrix[i][j] == 0:</div>
+  <div class="code-line" id="c2">  matrix[i][0] = 0</div>
+  <div class="code-line" id="c3">  matrix[0][j] = 0</div>
+  <div class="code-line" id="c4">if matrix[i][0] == 0 or matrix[0][j] == 0:</div>
+  <div class="code-line" id="c5">  matrix[i][j] = 0</div>
+</div>
+
+<div class="section">
+  <table id="grid"></table>
+  <div style="text-align:center;">
+    <button onclick="start()">開始模擬</button>
+    <button onclick="step()">下一步</button>
+    <button onclick="reset()">重置</button>
+  </div>
+</div>
+
+<div class="section">
+  <h3>⏱ 時間與空間複雜度</h3>
+  <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
+    <tr><th>方法</th><th>時間複雜度</th><th>空間複雜度</th></tr>
+    <tr><td>原地標記法</td><td>O(m × n)</td><td>O(1)</td></tr>
+  </table>
+</div>
+
+<script>
+let original = [
+  [1,1,1],
+  [1,0,1],
+  [1,1,1]
+];
+let matrix = [];
+let m = 3, n = 3;
+let i = 1, j = 1, phase = 0;
+let row0 = false, col0 = false;
+
+function draw() {
+  const table = document.getElementById("grid");
+  table.innerHTML = "";
+  for (let r = 0; r < m; r++) {
+    const tr = document.createElement("tr");
+    for (let c = 0; c < n; c++) {
+      const td = document.createElement("td");
+      td.id = `cell-${r}-${c}`;
+      td.textContent = matrix[r][c];
+      if (matrix[r][c] === 0) td.classList.add("zero");
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+}
+
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(l => l.classList.remove("highlight-line"));
+  if (id) document.getElementById(id).classList.add("highlight-line");
+}
+
+function start() {
+  matrix = JSON.parse(JSON.stringify(original));
+  i = 1; j = 1; phase = 0;
+  row0 = matrix[0].includes(0);
+  col0 = matrix.map(r => r[0]).includes(0);
+  draw();
+  highlight("c1");
+}
+
+function step() {
+  if (phase === 0) {
+    if (i < m) {
+      if (j < n) {
+        if (matrix[i][j] === 0) {
+          highlight("c1");
+          matrix[i][0] = 0;
+          matrix[0][j] = 0;
+          highlight("c2");
+        }
+        j++;
+        return draw();
+      }
+      j = 1; i++;
+    } else {
+      i = 1; j = 1; phase = 1;
+    }
+  }
+
+  if (phase === 1) {
+    if (i < m) {
+      if (j < n) {
+        if (matrix[i][0] === 0 || matrix[0][j] === 0) {
+          highlight("c4");
+          matrix[i][j] = 0;
+          highlight("c5");
+        }
+        j++;
+        return draw();
+      }
+      j = 1; i++;
+    } else {
+      phase = 2;
+    }
+  }
+
+  if (phase === 2) {
+    if (row0) for (let c = 0; c < n; c++) matrix[0][c] = 0;
+    if (col0) for (let r = 0; r < m; r++) matrix[r][0] = 0;
+    draw();
+    phase = 3;
+  }
+}
+
+function reset() {
+  matrix = JSON.parse(JSON.stringify(original));
+  draw();
+  highlight(null);
+}
+window.onload = start;
+</script>
+</body>
+</html>

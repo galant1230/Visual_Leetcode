@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>435. Non-overlapping Intervals - 視覺化模擬</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; padding: 2rem; }
+    .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
+    h2, h3 { color: #007bff; }
+    input, button { font-size: 14px; padding: 6px 12px; margin: 0.5rem 0.3rem 0 0; border-radius: 4px; border: 1px solid #ccc; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    .interval { display: inline-block; padding: 6px 10px; margin: 4px; background: #e3f2fd; border: 1px solid #90caf9; border-radius: 4px; transition: all 0.3s ease; }
+    .removed { background: #ffcdd2; border-color: #e57373; text-decoration: line-through; }
+    .kept { background: #c8e6c9; border-color: #81c784; font-weight: bold; }
+    .active { border: 2px solid red; }
+    .status-box { font-family: monospace; background: #f1f8e9; padding: 1rem; border-left: 5px solid #8bc34a; white-space: pre-wrap; margin-top: 1rem; max-height: 300px; overflow-y: auto; }
+    #resultArea { margin-top: 1.5rem; min-height: 60px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>🚫 435. Non-overlapping Intervals</h2>
+
+<details open>
+  <summary>🧠 題目解析與解法思路</summary>
+  <div style="padding: 1rem; background: #f9f9f9; border-left: 4px solid #007bff; margin: 1rem 0;">
+    <p><strong>題目：</strong>給定一個區間陣列 intervals，請你移除最少數量的區間，使得剩下的區間不重疊。</p>
+
+    <ol>
+      <li><strong>先依照 end 進行升序排序：</strong>這樣我們每次都優先保留結束最早的區間，讓後面能放更多。</li>
+      <li><strong>掃描整個陣列：</strong>如果目前的 start 小於上一個保留區間的 end，就代表有重疊，要移除。</li>
+      <li><strong>否則保留，並更新 prevEnd：</strong>表示沒有重疊，可以納入計算。</li>
+    </ol>
+
+    <p><strong>✅ 時間複雜度：</strong>O(n log n)，因為需要排序</p>
+    <p><strong>✅ 空間複雜度：</strong>O(1)，不需要額外空間</p>
+  </div>
+</details>
+
+  <h3>🧪 輸入</h3>
+  <input id="intervalsInput" value="[[1,2],[2,3],[3,4],[1,3]]">
+  <button onclick="startSim()">開始模擬</button>
+  <button onclick="stepSim()">下一步</button>
+  <div id="resultArea"></div>
+  <div class="status-box" id="logBox"></div>
+</div>
+
+<script>
+let intervals = [], index = 0, count = 0, prevEnd = null;
+
+function startSim() {
+  intervals = JSON.parse(document.getElementById("intervalsInput").value);
+  intervals.sort((a, b) => a[1] - b[1]);
+  index = 0;
+  count = 0;
+  prevEnd = -Infinity;
+  document.getElementById("logBox").innerText = "";
+  render();
+}
+
+function stepSim() {
+  if (index >= intervals.length) return;
+  const curr = intervals[index];
+  const logBox = document.getElementById("logBox");
+
+  if (curr[0] < prevEnd) {
+    logBox.innerText += `❌ 移除區間 ${JSON.stringify(curr)} 因為與前一個重疊\n`;
+    curr.removed = true;
+    count++;
+  } else {
+    logBox.innerText += `✅ 保留區間 ${JSON.stringify(curr)}\n`;
+    curr.kept = true;
+    prevEnd = curr[1];
+  }
+  index++;
+  render();
+}
+
+function render() {
+  const resultDiv = document.getElementById("resultArea");
+  resultDiv.innerHTML = "";
+  intervals.forEach((intv, idx) => {
+    const span = document.createElement("span");
+    span.className = "interval";
+    if (intv.removed) span.classList.add("removed");
+    if (intv.kept) span.classList.add("kept");
+    if (idx === index) span.classList.add("active");
+    span.innerText = `[${intv[0]}, ${intv[1]}]`;
+    resultDiv.appendChild(span);
+  });
+}
+</script>
+
+<h3>📄 程式碼</h3>
+<div style="background:#272822;color:#f8f8f2;padding:1rem;border-radius:6px;font-family:monospace;white-space:pre-wrap;">
+class Solution:
+    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+        if not intervals:
+            return 0
+
+        intervals.sort(key=lambda x: x[1])
+        count = 0
+        prev_end = float('-inf')
+
+        for interval in intervals:
+            if interval[0] < prev_end:
+                count += 1  # 有重疊，移除
+            else:
+                prev_end = interval[1]  # 更新結束時間
+
+        return count
+</div>
+</body>
+</html>

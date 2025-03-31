@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>LeetCode 191 - Number of 1 Bits 視覺化解法</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f7fa; padding: 2rem; }
+    h1 { text-align: center; color: #007acc; }
+    .section {
+      max-width: 900px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .binary {
+      font-size: 1.2rem;
+      font-family: monospace;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .bit {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      border: 1px solid #ccc;
+      margin: 2px;
+      border-radius: 4px;
+    }
+    .bit.highlight {
+      background-color: #2ecc71;
+      color: white;
+      font-weight: bold;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code {
+      background: #444;
+      color: white;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    .tips {
+      background: #fef7dc;
+      padding: 1rem;
+      border-left: 6px solid #f1c40f;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<h1>LeetCode 191 - Number of 1 Bits 視覺化解法</h1>
+
+<div class="section">
+  <h2>📌 題目描述</h2>
+  <p>給定一個 <strong>32-bit 整數</strong> <code>n</code>，請計算其二進位中 <strong>1 的個數</strong>（又稱 Hamming Weight）。</p>
+</div>
+
+<div class="section">
+  <h2>🧠 解題思路</h2>
+  <p>每次使用 <code>n & (n - 1)</code>，可以消除最右邊的 1，並累加計數。</p>
+  <ul>
+    <li>例如：n = 9 (1001)</li>
+    <li>Step 1: 1001 & 1000 = 1000 (count=1)</li>
+    <li>Step 2: 1000 & 0111 = 0000 (count=2)</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>🔢 模擬計算</h2>
+  <div style="text-align:center;">
+    <label>輸入整數 n：<input type="number" id="inputN" value="11" /></label>
+    <button onclick="start()">開始模擬</button>
+    <button onclick="step()">下一步</button>
+  </div>
+  <div class="binary" id="binaryView"></div>
+  <p id="output" style="text-align:center; font-weight:bold;"></p>
+</div>
+
+<div class="section">
+  <h2>🧑‍💻 程式碼展示</h2>
+  <div id="codeBox">
+    <div class="code-line" id="c1">int hammingWeight(uint32_t n) {</div>
+    <div class="code-line" id="c2">    int count = 0;</div>
+    <div class="code-line" id="c3">    while (n != 0) {</div>
+    <div class="code-line" id="c4">        n = n & (n - 1);</div>
+    <div class="code-line" id="c5">        count++;</div>
+    <div class="code-line" id="c6">    }</div>
+    <div class="code-line" id="c7">    return count;</div>
+    <div class="code-line" id="c8">}</div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>⏳ 時間與空間複雜度</h2>
+  <table>
+    <tr><th>類型</th><th>分析</th><th>Big-O</th></tr>
+    <tr><td>時間複雜度</td><td>每次移除一個 1，最多 k 次</td><td>O(k)</td></tr>
+    <tr><td>空間複雜度</td><td>只使用一個計數變數</td><td>O(1)</td></tr>
+  </table>
+</div>
+
+<div class="section tips">
+  <strong>💡 小技巧：</strong>
+  <ul>
+    <li><code>n & (n - 1)</code> 是經典位元技巧，可快速移除最後一個 1。</li>
+    <li>比起掃描 32 位更快，尤其當 1 較少時。</li>
+    <li>這題經常出現在面試中考位元操作。</li>
+  </ul>
+</div>
+
+<script>
+let current = 0;
+let n = 0;
+let count = 0;
+
+function toBinaryBits(num) {
+  return num.toString(2).padStart(32, '0').split('');
+}
+
+function renderBits(bits) {
+  const container = document.getElementById("binaryView");
+  container.innerHTML = "";
+  bits.forEach((b, i) => {
+    const span = document.createElement("span");
+    span.className = "bit";
+    span.id = "bit-" + i;
+    span.textContent = b;
+    container.appendChild(span);
+  });
+}
+
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(el => el.classList.remove("active-code"));
+  if (id) document.getElementById(id).classList.add("active-code");
+}
+
+function start() {
+  n = parseInt(document.getElementById("inputN").value);
+  current = n;
+  count = 0;
+  renderBits(toBinaryBits(n));
+  highlight("c1");
+  document.getElementById("output").textContent = "點擊『下一步』模擬過程...";
+}
+
+function step() {
+  if (current === 0) {
+    highlight("c7");
+    document.getElementById("output").textContent = `✅ 答案：${count} 個 1`;
+    return;
+  }
+  highlight("c4");
+  current = current & (current - 1);
+  count++;
+  renderBits(toBinaryBits(current));
+  highlight("c5");
+  document.getElementById("output").textContent = `目前 count = ${count}`;
+}
+</script>
+
+</body>
+</html>

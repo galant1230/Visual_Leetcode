@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Validate BST 可視化模擬器</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+      padding: 2rem;
+      color: #333;
+    }
+    h2, h3 { color: #007acc; }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .tree-container {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .level {
+      display: flex;
+      justify-content: center;
+      margin: 6px 0;
+    }
+    .node {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #3498db;
+      border-radius: 50%;
+      background: white;
+      color: #3498db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin: 4px;
+    }
+    .visited { background: #2ecc71; color: white; }
+    .invalid { background: #e74c3c; color: white; }
+    .info {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 16px;
+    }
+    input, button {
+      font-size: 1rem;
+      margin: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    pre, code {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .section {
+      margin-top: 2rem;
+    }
+    .box, .tips {
+      background: #f4f6f8;
+      padding: 1rem;
+      border-left: 4px solid #007acc;
+      margin-top: 1rem;
+      border-radius: 6px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
+</head>
+<body>
+<div class="container">
+  <h2>🌿 98. 驗證二元搜尋樹（Validate BST）</h2>
+
+  <hr>
+  <h3>📘 題目描述</h3>
+  <p>給定一棵二元樹，判斷其是否為一棵有效的二元搜尋樹（BST）。</p>
+
+  <hr>
+  <h3>🧪 範例</h3>
+  <pre>
+  輸入: [5,1,4,null,null,3,6]
+  輸出: false
+  </pre>
+
+  <hr>
+  <h3>⏳ 時間與空間複雜度</h3>
+  <p><strong>時間複雜度：</strong> O(n)</p>
+  <p><strong>空間複雜度：</strong> O(n)</p>
+
+  <hr>
+  <h3>▶️ 模擬器</h3>
+  <div style="text-align:center;">
+    <label>Level Order Tree：</label>
+    <input id="inputTree" value="[5,1,4,null,null,3,6]" style="width:300px;" />
+    <br>
+    <button onclick="start()">🔃 開始驗證</button>
+    <button onclick="next()">🧭 下一步</button>
+  </div>
+
+  <div class="tree-container" id="tree"></div>
+  <div class="info" id="info">尚未開始</div>
+
+  <script>
+    let steps = [], index = 0, nodes = [], id = 0, result = [], isValid = true;
+
+    class TreeNode {
+      constructor(val) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+        this.id = id++;
+      }
+    }
+
+    function buildTree(arr) {
+      if (!arr.length || arr[0] === null) return null;
+      let root = new TreeNode(arr[0]);
+      let queue = [root];
+      let i = 1;
+      while (queue.length && i < arr.length) {
+        let node = queue.shift();
+        if (arr[i] !== null) {
+          node.left = new TreeNode(arr[i]);
+          queue.push(node.left);
+        }
+        i++;
+        if (i < arr.length && arr[i] !== null) {
+          node.right = new TreeNode(arr[i]);
+          queue.push(node.right);
+        }
+        i++;
+      }
+      return root;
+    }
+
+    function renderTree(root) {
+      const container = document.getElementById("tree");
+      container.innerHTML = "";
+      const levels = [];
+      function dfs(node, depth, pos) {
+        if (!node) return;
+        if (!levels[depth]) levels[depth] = [];
+        levels[depth][pos] = node;
+        dfs(node.left, depth + 1, pos * 2);
+        dfs(node.right, depth + 1, pos * 2 + 1);
+      }
+      dfs(root, 0, 0);
+      levels.forEach((row, i) => {
+        const div = document.createElement("div");
+        div.className = "level";
+        for (let j = 0; j < Math.pow(2, i); j++) {
+          const node = row[j];
+          const d = document.createElement("div");
+          d.className = "node";
+          if (node) {
+            d.id = "n" + node.id;
+            d.innerText = node.val;
+          } else {
+            d.innerText = "";
+            d.style.border = "none";
+          }
+          div.appendChild(d);
+        }
+        container.appendChild(div);
+      });
+    }
+
+    function inorderTraversal(node) {
+      if (!node) return;
+      inorderTraversal(node.left);
+      steps.push(node);
+      inorderTraversal(node.right);
+    }
+
+    function next() {
+      if (index >= steps.length) {
+        document.getElementById("info").innerHTML =
+          "✅ 完成中序遍歷：" + result.join(" → ") + "<br>" +
+          (isValid ? "<span style='color:green;'>這是一棵合法 BST</span>"
+                   : "<span style='color:red;'>❌ 這不是 BST</span>");
+        return;
+      }
+      const node = steps[index++];
+      const el = document.getElementById("n" + node.id);
+      if (el) el.classList.add("visited");
+      if (result.length && node.val <= result[result.length - 1]) {
+        el.classList.add("invalid");
+        isValid = false;
+      }
+      result.push(node.val);
+      document.getElementById("info").innerHTML = "中序值序列：[" + result.join(", ") + "]";
+    }
+
+    function start() {
+      const input = document.getElementById("inputTree").value;
+      const arr = JSON.parse(input);
+      const tree = buildTree(arr);
+      id = 0;
+      steps = [];
+      result = [];
+      index = 0;
+      isValid = true;
+      inorderTraversal(tree);
+      renderTree(tree);
+      document.getElementById("info").innerText = "點選『下一步』檢查中序序列是否嚴格遞增...";
+    }
+  </script>
+
+  <div class="section">
+    <h3>🧠 程式碼邏輯</h3>
+    <pre><code class="language-python">class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        result = []
+
+        def InOrder(node):
+            if node:
+                InOrder(node.left)
+                result.append(node.val)
+                InOrder(node.right)
+
+        InOrder(root)
+
+        for i in range(1, len(result)):
+            if result[i] <= result[i - 1]:
+                return False
+        return True</code></pre>
+  </div>
+
+  <div class="section box">
+    <h3>📘 解法說明</h3>
+    <ul>
+      <li>對 BST 做中序遍歷會得到嚴格遞增的數列</li>
+      <li>將所有節點值按中序加入陣列，遍歷陣列檢查是否嚴格遞增</li>
+      <li>若有任何一對值不滿足 後 > 前 ，則不是合法 BST</li>
+    </ul>
+  </div>
+
+  <div class="section tips">
+    <h3>💡 Tips</h3>
+    <ul>
+      <li>這種解法簡單好寫，但會額外使用 O(n) 儲存陣列</li>
+      <li>進階可優化為「邊遍歷邊比較上一個值」就不需要記整個陣列</li>
+      <li>這個中序邏輯也可應用在「第 K 小節點」、「轉換 BST 為鏈結串列」等題目</li>
+    </ul>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+</body>
+</html>

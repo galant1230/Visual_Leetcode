@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Decode Ways 可視化模擬器</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+      margin: 0;
+      color: #333;
+    }
+    h2, h3 {
+      color: #007acc;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      margin: 0.3rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background: #007acc;
+      color: white;
+    }
+    input {
+      padding: 6px;
+      margin: 0.2rem;
+      width: 200px;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    .code-box {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 2rem 0;
+      font-family: monospace;
+    }
+    .code-line {
+      padding: 2px 0;
+    }
+    .active-code {
+      background-color: #444;
+    }
+    .char-row, .dp-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .char, .dp-cell {
+      padding: 10px;
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .char {
+      background: #e0e0e0;
+    }
+    .dp-cell {
+      background: #fffde7;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .highlight {
+      background: #4caf50 !important;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔐 91. 解碼方法（Decode Ways）</h2>
+
+    <hr>
+    <h3>📘 題目描述</h3>
+    <p>一個數字字串代表編碼，每個字母對應 1 到 26（A-Z）。計算有多少種不同方式可以將此字串解碼。</p>
+
+    <hr>
+    <h3>🧪 範例</h3>
+    <pre><code>輸入：s = "12"
+輸出：2
+解釋："AB"（1 2）或 "L"（12）
+
+輸入：s = "226"
+輸出：3
+解釋："BZ"（2 26）、"VF"（22 6）、"BBF"（2 2 6）</code></pre>
+
+    <hr>
+    <h3>⏳ 時間與空間複雜度</h3>
+    <p><strong>時間複雜度：</strong> <code>O(n)</code></p>
+    <p><strong>空間複雜度：</strong> <code>O(n)</code></p>
+
+    <hr>
+    <h3>▶️ 模擬器</h3>
+    <label>輸入字串 s: <input id="inputString" value="226"></label>
+    <button onclick="start()">🔃 開始</button>
+    <button onclick="stepWithCode()">🧭 下一步</button>
+
+    <div style="display: flex; gap: 10px; margin-left: 50px;" class="char-row" id="charRow"></div>
+    <div class="dp-row" id="dpRow"></div>
+    <p id="explanation">狀態說明會出現在這裡</p>
+
+    <div class="code-box">
+      <div class="code-line" id="c0">1: if not s or s[0] == '0': return 0</div>
+      <div class="code-line" id="c1">2: dp = [0] * (len(s) + 1)</div>
+      <div class="code-line" id="c2">3: dp[0], dp[1] = 1, 1</div>
+      <div class="code-line" id="c3">4: for i in range(2, len(s)+1):</div>
+      <div class="code-line" id="c4">5:&nbsp;&nbsp;&nbsp;&nbsp;if s[i-1] != '0':</div>
+      <div class="code-line" id="c5">6:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i] += dp[i-1]</div>
+      <div class="code-line" id="c6">7:&nbsp;&nbsp;&nbsp;&nbsp;if 10 &lt;= int(s[i-2:i]) &lt;= 26:</div>
+      <div class="code-line" id="c7">8:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i] += dp[i-2]</div>
+      <div class="code-line" id="c8">9: return dp[-1]</div>
+    </div>
+  </div>
+
+  <script>
+    let s = "", dp = [], idx = 2, explanation = "", resultShown = false;
+
+    function start() {
+      s = document.getElementById("inputString").value;
+      dp = Array(s.length + 1).fill(0);
+      dp[0] = 1;
+      dp[1] = s[0] === '0' ? 0 : 1;
+      idx = 2;
+      resultShown = false;
+
+      document.getElementById("charRow").innerHTML = "<div style='width: 13px;'></div>" + s.split('').map((c, i) =>
+        `<div class="char" id="char${i}">${c}</div>`).join('');
+      document.getElementById("dpRow").innerHTML = dp.map((v, i) =>
+        `<div class="dp-cell" id="dp${i}">${v}</div>`).join('');
+      document.getElementById("explanation").innerText =
+        `初始化：dp[0] = ${dp[0]}, dp[1] = ${dp[1]}`;
+    }
+
+    function step() {
+      if (idx > s.length) {
+        document.getElementById("explanation").innerText += `\n✅ 解碼方法總數：${dp[s.length]}`;
+        resultShown = true;
+        return;
+      }
+
+      let oneDigit = parseInt(s.slice(idx - 1, idx));
+      let twoDigit = parseInt(s.slice(idx - 2, idx));
+
+      let info = "";
+      if (oneDigit >= 1) {
+        dp[idx] += dp[idx - 1];
+        info += `一位數 ${oneDigit} 有效，+dp[${idx - 1}] = ${dp[idx - 1]}\n`;
+      }
+      if (twoDigit >= 10 && twoDigit <= 26) {
+        dp[idx] += dp[idx - 2];
+        info += `兩位數 ${twoDigit} 有效，+dp[${idx - 2}] = ${dp[idx - 2]}\n`;
+      }
+
+      document.getElementById("dp" + idx).textContent = dp[idx];
+      document.getElementById("explanation").innerText = `🔢 i = ${idx}\ndp[${idx}] = ${dp[idx]}\n` + info;
+
+      for (let i = 0; i < s.length; i++) {
+        document.getElementById("char" + i).classList.remove("highlight");
+      }
+      if (idx - 1 < s.length) document.getElementById("char" + (idx - 1)).classList.add("highlight");
+      if (idx - 2 < s.length) document.getElementById("char" + (idx - 2)).classList.add("highlight");
+
+      idx++;
+    }
+
+    function stepWithCode() {
+      if (resultShown) return;
+
+      if (idx > s.length) {
+        highlightLine(8);
+        step();
+        return;
+      }
+
+      let highlightLines = [3];
+      let oneDigit = parseInt(s.slice(idx - 1, idx));
+      let twoDigit = parseInt(s.slice(idx - 2, idx));
+
+      if (oneDigit >= 1) {
+        highlightLines.push(4, 5);
+      }
+      if (twoDigit >= 10 && twoDigit <= 26) {
+        highlightLines.push(6, 7);
+      }
+
+      document.querySelectorAll(".code-line").forEach(e => e.classList.remove("active-code"));
+      highlightLines.forEach(i => {
+        const el = document.getElementById("c" + i);
+        if (el) el.classList.add("active-code");
+      });
+
+      step();
+    }
+
+    function highlightLine(lineId) {
+      document.querySelectorAll(".code-line").forEach(e => e.classList.remove("active-code"));
+      const el = document.getElementById("c" + lineId);
+      if (el) el.classList.add("active-code");
+    }
+  </script>
+</body>
+</html>
+

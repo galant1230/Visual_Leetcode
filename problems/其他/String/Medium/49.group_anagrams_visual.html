@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>將字母異位詞分組 視覺化教學</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f7fa;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #007acc;
+    }
+    .section {
+      max-width: 900px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .input-area {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    input[type="text"] {
+      width: 60%;
+      padding: 8px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .btn-group {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    .dict-display {
+      margin-top: 1rem;
+      font-family: monospace;
+      text-align: center;
+      background: #ecf0f1;
+      padding: 1rem;
+      border-radius: 6px;
+    }
+    .code-box {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: monospace;
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+    .code-line {
+      padding: 2px 0;
+    }
+    .active-code {
+      background: #444;
+      color: white;
+    }
+    .tips {
+      background: #fef7dc;
+      padding: 1rem;
+      border-left: 6px solid #f1c40f;
+      border-radius: 6px;
+      margin-top: 1rem;
+      font-family: sans-serif;
+    }
+    table {
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc; 
+      padding: 0.75rem; 
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<h1>將字母異位詞分組 視覺化教學</h1>
+
+<div class="section">
+  <h2>問題描述</h2>
+  <p>
+    給定一個字串陣列 <code>strs</code>，請將字母異位詞分組在一起，並以任意順序返回答案。
+  </p>
+  <p>
+    <strong>範例 1：</strong><br>
+    輸入: strs = ["eat", "tea", "tan", "ate", "nat", "bat"]<br>
+    輸出: [["bat"], ["nat", "tan"], ["ate", "eat", "tea"]]
+  </p>
+  <p>
+    限制：1 <= strs.length <= 10^4，且每個字串只包含小寫英文字母。
+  </p>
+</div>
+
+<div class="section">
+  <h2>解題思路 - 計數排序</h2>
+  <p>
+    對於每個字串，將其字母排序後作為 key，並利用字典記錄該 key 對應的字串組。具體步驟如下：
+  </p>
+  <ol>
+    <li>遍歷字串陣列，對每個字串排序字母，得到 sorted_word。</li>
+    <li>如果 sorted_word 已在字典中，則將字串加入該組；否則新增一組。</li>
+    <li>最後回傳字典所有值的列表。</li>
+  </ol>
+  <div class="tips">
+    小技巧：利用排序後的字串作為 key 可以輕鬆分組，但排序複雜度為 O(k log k)，最終時間複雜度為 O(n * k log k)。
+  </div>
+</div>
+
+<div class="section">
+  <h2>互動模擬</h2>
+  <div class="input-area">
+    <label>輸入字串陣列（以逗號分隔）：</label>
+    <input type="text" id="inputStrs" value="eat,tea,tan,ate,nat,bat">
+  </div>
+  <div class="btn-group">
+    <button onclick="startSimulation()">開始模擬</button>
+    <button onclick="nextStep()">下一步</button>
+  </div>
+  <div class="dict-display" id="dictDisplay">字典狀態: {}</div>
+  <p id="simOutput" style="text-align:center; font-weight:bold;">模擬狀態</p>
+</div>
+
+<div class="section">
+  <h2>程式碼展示 (Python 解法)</h2>
+  <div class="code-box" id="codeBox">
+    <div class="code-line" id="line1">class Solution:</div>
+    <div class="code-line" id="line2">    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:</div>
+    <div class="code-line" id="line3">        group = {}  # 建立字典存儲分組</div>
+    <div class="code-line" id="line4">        for word in strs:</div>
+    <div class="code-line" id="line5">            sorted_word = ''.join(sorted(word))  # 排序字母作為 key</div>
+    <div class="code-line" id="line6">            if sorted_word in group:</div>
+    <div class="code-line" id="line7">                group[sorted_word].append(word)</div>
+    <div class="code-line" id="line8">            else:</div>
+    <div class="code-line" id="line9">                group[sorted_word] = [word]</div>
+    <div class="code-line" id="line10">        return list(group.values())</div>
+  </div>
+  <div class="tips">
+    小技巧：在新增 group 時記得放入一個 list，而不是單獨字串，這樣才能進行分組。
+  </div>
+</div>
+
+<div class="section">
+  <h2>時間與空間複雜度</h2>
+  <table>
+    <tr>
+      <th>方法</th>
+      <th>時間複雜度</th>
+      <th>空間複雜度</th>
+    </tr>
+    <tr>
+      <td>排序法分組</td>
+      <td>O(n * k log k)</td>
+      <td>O(n * k)</td>
+    </tr>
+  </table>
+  <p>
+    其中 n 為字串陣列長度，k 為每個字串的平均長度。
+  </p>
+</div>
+
+<script>
+// 全域變數
+let strsArr = [];
+let groupDict = {};
+let currentIndex = 0;
+const dictDisplay = document.getElementById("dictDisplay");
+const simOutput = document.getElementById("simOutput");
+
+// 初始化模擬：解析輸入字串，重置字典
+function startSimulation() {
+  const input = document.getElementById("inputStrs").value;
+  strsArr = input.split(",").map(s => s.trim());
+  groupDict = {};
+  currentIndex = 0;
+  updateDictDisplay();
+  simOutput.innerText = `開始模擬：將字串陣列 [${strsArr.join(", ")}] 進行分組`;
+  highlightCode(null);
+}
+
+// 下一步：處理一個字串，更新字典
+function nextStep() {
+  if (currentIndex >= strsArr.length) {
+    simOutput.innerText = "模擬完成！最終分組結果： " + JSON.stringify(groupDict);
+    highlightCode("return");
+    return;
+  }
+  let word = strsArr[currentIndex];
+  let sortedWord = word.split("").sort().join("");
+  if (sortedWord in groupDict) {
+    groupDict[sortedWord].push(word);
+    simOutput.innerText = `處理 "${word}"：排序後為 "${sortedWord}"，加入現有分組。`;
+    highlightCode("append");
+  } else {
+    groupDict[sortedWord] = [word];
+    simOutput.innerText = `處理 "${word}"：排序後為 "${sortedWord}"，建立新分組。`;
+    highlightCode("new");
+  }
+  currentIndex++;
+  updateDictDisplay();
+}
+
+// 更新字典顯示
+function updateDictDisplay() {
+  let dictStr = JSON.stringify(groupDict);
+  dictDisplay.innerText = `字典狀態: ${dictStr}`;
+}
+
+// 程式碼亮化：根據不同動作高亮程式碼區塊內對應的行
+function highlightCode(context) {
+  const codeBox = document.getElementById("codeBox");
+  const lines = codeBox.innerText.split("\n");
+  let newHTML = "";
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    let id = "";
+    if (context === "new" && line.includes("else:")) {
+      id = 'id="hl"';
+    } else if (context === "append" && line.includes("if sorted_word in group:")) {
+      id = 'id="hl"';
+    } else if (context === "return" && line.includes("return list(group.values())")) {
+      id = 'id="hl"';
+    }
+    newHTML += `<div class="code-line" ${id}>${line}</div>`;
+  }
+  codeBox.innerHTML = newHTML;
+}
+</script>
+
+</body>
+</html>

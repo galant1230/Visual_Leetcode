@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>297. 使用 BFS 的序列化與反序列化</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; padding: 2rem; color: #333; }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    h2, h3 { color: #007acc; }
+    .tree, .steps, .logbox { text-align: center; margin-top: 2rem; }
+    .layer { display: flex; justify-content: center; margin: 1rem 0; }
+    .node {
+      width: 60px; height: 60px;
+      border: 3px solid #2980b9;
+      border-radius: 50%;
+      background: white; color: #2980b9;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 18px; margin: 0 10px;
+      position: relative;
+    }
+    .highlight { background: #e67e22; color: white; }
+    button {
+      background: #007acc; color: white;
+      padding: 8px 16px; border: none; border-radius: 6px;
+      font-size: 16px; margin: 10px; cursor: pointer;
+    }
+    #logBox {
+      margin-top: 1rem;
+      background: #f4f6f8;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    pre.code-box {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      margin-top: 2rem;
+      border-radius: 6px;
+      font-family: monospace;
+      overflow-x: auto;
+    }
+    .highlight-line { background-color: #444 !important; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>🧩 297. 使用 BFS 的序列化與反序列化</h2>
+
+  <hr>
+  <h3>📘 題目描述</h3>
+  <p>將二元樹透過 BFS 方式序列化為字串，再根據該序列重建出原始樹結構。</p>
+
+  <hr>
+  <h3>🧠 解法說明</h3>
+  <ul>
+    <li>使用 BFS（Queue）依序處理每個節點</li>
+    <li>將節點值依序加入結果陣列，空節點記為 "null"</li>
+    <li>反序列化則利用 index 還原左右子樹位置</li>
+  </ul>
+
+  <hr>
+  <h3>⏳ 時間與空間複雜度</h3>
+  <ul>
+    <li><strong>時間複雜度：</strong>O(n)</li>
+    <li><strong>空間複雜度：</strong>O(n)</li>
+  </ul>
+
+  <hr>
+  <h3>▶️ 序列化動畫</h3>
+  <div>
+    <label>輸入樹（例如：[1,2,3,null,null,4,5]）</label><br/>
+    <input id="treeInput" value="[1,2,3,null,null,4,5]" style="width:300px;padding:5px;" />
+    <button onclick="start()">開始序列化</button>
+    <button onclick="nextStep()">下一步</button>
+  </div>
+  <div class="tree" id="tree"></div>
+  <div class="steps" id="steps"></div>
+  <div class="logbox" id="logBox">🔍 準備開始序列化</div>
+
+  <hr>
+  <h3>🔁 反序列化動畫</h3>
+  <div style="text-align:center">
+    <button onclick="startDeserialize()">開始反序列化</button>
+    <button onclick="nextDesStep()">反序列化下一步</button>
+  </div>
+
+  <hr>
+  <h3>💻 程式碼</h3>
+  <pre class="code-box" id="codeDisplay"></pre>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let steps = [], index = 0, treeData = [];
+let desSteps = [], desIndex = 0;
+
+function log(msg) {
+  $("logBox").innerText += "\n" + msg;
+  $("logBox").scrollTop = $("logBox").scrollHeight;
+}
+
+function highlightLine(n) {
+  const lines = document.querySelectorAll(".code-line");
+  lines.forEach((el, i) => el.classList.toggle("highlight-line", i === n));
+}
+
+function buildTreeUI(values) {
+  const tree = $("tree");
+  tree.innerHTML = "";
+  const levels = Math.floor(Math.log2(values.length)) + 1;
+  let idx = 0;
+  for (let i = 0; i < levels; i++) {
+    const layer = document.createElement("div");
+    layer.className = "layer";
+    for (let j = 0; j < Math.pow(2, i); j++) {
+      const val = idx < values.length ? values[idx] : null;
+      const div = document.createElement("div");
+      div.className = "node";
+      div.id = "n" + idx;
+      div.textContent = val === null ? "∅" : val;
+      layer.appendChild(div);
+      idx++;
+    }
+    tree.appendChild(layer);
+  }
+}
+
+function simulateFinalBFS(values) {
+  steps = [];
+  let queue = [{ val: values[0], idx: 0 }];
+  let i = 1;
+  steps.push({ type: "init", line: 2 });
+
+  while (queue.length > 0) {
+    const { val, idx } = queue.shift();
+    steps.push({ type: "visit", idx, val, line: 4 });
+
+    if (val !== null && val !== undefined) {
+      steps.push({ type: "append", val, line: 6 });
+      const left = values[i++] ?? null;
+      const right = values[i++] ?? null;
+      queue.push({ val: left, idx: 2 * idx + 1 });
+      queue.push({ val: right, idx: 2 * idx + 2 });
+    } else {
+      steps.push({ type: "append", val: "null", line: 9 });
+    }
+  }
+}
+
+function nextStep() {
+  if (index >= steps.length) return;
+  document.querySelectorAll(".node").forEach(n => n.classList.remove("highlight"));
+  const step = steps[index++];
+  highlightLine(step.line);
+  if (step.type === "init") {
+    $("steps").innerText = "序列化：[";
+    log("🌀 初始化 queue");
+  } else if (step.type === "visit") {
+    const node = $("n" + step.idx);
+    if (node) node.classList.add("highlight");
+    log(`👁 拜訪節點 ${step.val}`);
+  } else if (step.type === "append") {
+    $("steps").innerText += step.val + ",";
+    log(`📥 加入序列：${step.val}`);
+  }
+}
+
+function start() {
+  index = 0;
+  try {
+    treeData = JSON.parse($("treeInput").value);
+    buildTreeUI(treeData);
+    simulateFinalBFS(treeData);
+    $("steps").innerText = "";
+    $("logBox").innerText = "✅ 樹已載入，點下一步開始序列化";
+    renderCode();
+  } catch {
+    alert("請輸入正確格式的 JSON 陣列");
+  }
+}
+
+function simulateDeserialize(serializedList) {
+  desSteps = [];
+  if (!serializedList.length || serializedList[0] === "null") return;
+
+  let i = 1;
+  const root = { val: serializedList[0], idx: 0 };
+  const queue = [root];
+  desSteps.push({ type: "create", val: root.val, idx: root.idx });
+
+  while (queue.length && i < serializedList.length) {
+    const current = queue.shift();
+    const leftVal = serializedList[i++];
+    const rightVal = serializedList[i++];
+
+    if (leftVal !== undefined) {
+      desSteps.push({ type: "left", parent: current.idx, val: leftVal });
+      if (leftVal !== "null") queue.push({ val: leftVal, idx: 2 * current.idx + 1 });
+    }
+    if (rightVal !== undefined) {
+      desSteps.push({ type: "right", parent: current.idx, val: rightVal });
+      if (rightVal !== "null") queue.push({ val: rightVal, idx: 2 * current.idx + 2 });
+    }
+  }
+}
+
+function nextDesStep() {
+  if (desIndex >= desSteps.length) return;
+  document.querySelectorAll(".node").forEach(n => n.classList.remove("highlight"));
+  const step = desSteps[desIndex++];
+  if (step.type === "create") {
+    $("n" + step.idx)?.classList.add("highlight");
+    log(`🌱 建立根節點 ${step.val}`);
+  } else if (step.type === "left") {
+    $("n" + (2 * step.parent + 1))?.classList.add("highlight");
+    log(`↙️ 左子節點 ${step.val} 給 ${step.parent}`);
+  } else if (step.type === "right") {
+    $("n" + (2 * step.parent + 2))?.classList.add("highlight");
+    log(`↘️ 右子節點 ${step.val} 給 ${step.parent}`);
+  }
+}
+
+function startDeserialize() {
+  desIndex = 0;
+  const serialized = $("steps").innerText.replace("序列化:[", "").replace("]", "").split(",").filter(Boolean);
+  simulateDeserialize(serialized);
+  log("🔁 開始反序列化動畫，請點『反序列化下一步』");
+}
+
+function renderCode() {
+  const lines = [
+    "def serialize(root):",
+    "    if not root: return \"\"",
+    "    queue = deque([root])",
+    "    while queue:",
+    "        node = queue.popleft()",
+    "        if node:",
+    "            result.append(str(node.val))",
+    "            queue.append(node.left)",
+    "            queue.append(node.right)",
+    "        else:",
+    "            result.append(\"null\")"
+  ];
+  const codeBox = document.getElementById("codeDisplay");
+  codeBox.innerHTML = lines.map((line, i) => `<div class="code-line">${line}</div>`).join("\n");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>💰 322. Coin Change 可視化模擬器</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+      margin: 0;
+      color: #333;
+    }
+    h2, h3 {
+      color: #007acc;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      margin: 0.3rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background: #007acc;
+      color: white;
+    }
+    input {
+      padding: 6px;
+      font-size: 14px;
+      margin: 0.3rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    table {
+      border-collapse: collapse;
+      margin: 1.5rem auto;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      text-align: center;
+      min-width: 40px;
+    }
+    td.highlight {
+      background-color: #ffe082;
+      font-weight: bold;
+    }
+    td.coin-used {
+      background-color: #aed581;
+    }
+    .code-box {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 2rem 0;
+      font-family: monospace;
+    }
+    .code-line {
+      padding: 2px 0;
+    }
+    .active-code {
+      background-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>💰 322. 零錢兌換（Coin Change）</h2>
+
+    <hr>
+    <h3>📘 題目描述</h3>
+    <p>給定一組硬幣面額 <code>coins</code> 和一個金額 <code>amount</code>，請找出湊出該金額所需的最少硬幣數量。</p>
+    <p>若無法湊出該金額，回傳 <code>-1</code>。</p>
+
+    <hr>
+    <h3>🧪 範例</h3>
+    <pre><code>輸入：coins = [1, 2, 5], amount = 11
+輸出：3
+說明：11 = 5 + 5 + 1</code></pre>
+
+    <hr>
+    <h3>⏳ 時間與空間複雜度</h3>
+    <ul>
+      <li><strong>時間複雜度：</strong> O(amount × n)，其中 n 為硬幣數</li>
+      <li><strong>空間複雜度：</strong> O(amount)</li>
+    </ul>
+
+    <hr>
+    <h3>▶️ 模擬器</h3>
+    <div style="text-align: center;">
+      <label>Coins: <input id="coinsInput" value="1,2,5" size="10"></label>
+      <label>Amount: <input id="amountInput" value="11" size="5"></label>
+      <button onclick="start()">🔃 開始模擬</button>
+      <button onclick="step()">🧭 下一步</button>
+      <button onclick="reset()">♻️ 重置</button>
+    </div>
+
+    <div id="tableArea" style="overflow-x:auto;"></div>
+
+    <div class="code-box">
+      <div class="code-line" id="c1">1: dp = [0] + [float('inf')] * amount</div>
+      <div class="code-line" id="c2">2: dp[0] = 0</div>
+      <div class="code-line" id="c3">3: for i in range(1, amount + 1):</div>
+      <div class="code-line" id="c4">4: &nbsp;&nbsp;for coin in coins:</div>
+      <div class="code-line" id="c5">5: &nbsp;&nbsp;&nbsp;&nbsp;if coin <= i:</div>
+      <div class="code-line" id="c6">6: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i] = min(dp[i], dp[i - coin] + 1)</div>
+    </div>
+  </div>
+
+  <script>
+    let coins = [1,2,5];
+    let amount = 11;
+    let dp = [];
+    let i = 1;
+    let j = 0;
+
+    function highlight(line) {
+      document.querySelectorAll('.code-line').forEach(l => l.classList.remove("active-code"));
+      if (line) document.getElementById("c" + line).classList.add("active-code");
+    }
+
+    function start() {
+      coins = document.getElementById("coinsInput").value.split(',').map(Number);
+      amount = parseInt(document.getElementById("amountInput").value);
+      dp = new Array(amount + 1).fill(amount + 1);
+      dp[0] = 0;
+      i = 1;
+      j = 0;
+      drawTable();
+      highlight(1);
+      setTimeout(() => highlight(2), 300);
+    }
+
+    function reset() {
+      start();
+    }
+
+    function step() {
+      if (i > amount) {
+        highlight(null);
+        return;
+      }
+
+      highlight(3);
+      const coin = coins[j];
+      highlight(4);
+
+      if (coin <= i) {
+        highlight(5);
+        const candidate = dp[i - coin] + 1;
+        if (candidate < dp[i]) {
+          dp[i] = candidate;
+        }
+        highlight(6);
+      }
+
+      j++;
+      if (j >= coins.length) {
+        j = 0;
+        i++;
+      }
+
+      drawTable();
+    }
+
+    function drawTable() {
+      const area = document.getElementById("tableArea");
+      let html = "<table><tr>";
+      for (let k = 0; k <= amount; k++) {
+        html += `<th>${k}</th>`;
+      }
+      html += "</tr><tr>";
+      for (let k = 0; k <= amount; k++) {
+        let cls = "";
+        if (k === i) cls = "highlight";
+        else if (j < coins.length && coins[j] <= i && k === i - coins[j]) cls = "coin-used";
+        html += `<td class="${cls}">${dp[k] > amount ? "∞" : dp[k]}</td>`;
+      }
+      html += "</tr></table>";
+      area.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

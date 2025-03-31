@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>212. Word Search II 模擬器</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+      margin: 0;
+      color: #333;
+    }
+    h2, h3 {
+      color: #007acc;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    table {
+      border-collapse: collapse;
+      margin: 1rem auto;
+    }
+    td {
+      width: 50px; height: 50px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 24px;
+      border: 2px solid #444;
+      background-color: white;
+      transition: background-color 0.3s ease;
+    }
+    td.visited { background-color: #ffe082; }
+    td.found { background-color: #81c784; color: white; }
+    td.start { background-color: #64b5f6; color: white; }
+    button {
+      padding: 0.5rem 1rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .info {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #ecf0f1;
+      border-left: 6px solid #3498db;
+      white-space: pre-wrap;
+    }
+    #logBox {
+      margin-top: 1rem;
+      background: #f4f6f8;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    pre.code-box {
+      text-align: left;
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      margin: 2rem auto;
+      max-width: 700px;
+      border-radius: 8px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+    .highlight-line {
+      background-color: #444 !important;
+    }
+    #resultBox {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+    #resultBox.success { color: green; }
+    #resultBox.fail { color: red; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔍 212. Word Search II - 視覺化模擬器</h2>
+
+    <hr>
+    <h3>📘 題目描述</h3>
+    <p>給定一個 m x n 的字元板 <code>board</code> 和一個字串陣列 <code>words</code>，請找出所有可以從字元板中由相鄰格子組成的單字。</p>
+    <ul>
+      <li>相鄰格子是指上下左右四個方向。</li>
+      <li>同一格不可重複使用。</li>
+    </ul>
+
+    <hr>
+    <h3>🧠 解法說明</h3>
+    <ul>
+      <li>使用 Trie 建字典樹加速搜尋</li>
+      <li>對每個字母進行 DFS，嘗試組出單字</li>
+      <li>DFS 過程中若走到 Trie 終點即表示找到一個單字</li>
+    </ul>
+
+    <hr>
+    <h3>⏳ 時間與空間複雜度</h3>
+    <ul>
+      <li><strong>時間複雜度：</strong>O(M × N × 4^L)，M × N 為格子數，L 為單字長度</li>
+      <li><strong>空間複雜度：</strong>O(K)，K 為 Trie 節點數</li>
+    </ul>
+
+    <hr>
+    <h3>▶️ 模擬器</h3>
+    <div>
+      <label>目標單字：<input id="targetWord" placeholder="輸入單字，如 oath" /></label>
+      <button onclick="startSearch()">開始搜尋 ▶️</button>
+      <button onclick="nextStep()">下一步 ⏭</button>
+      <button onclick="resetBoard()">重設 🔄</button>
+    </div>
+
+    <table id="board"></table>
+    <div class="info">執行紀錄</div>
+    <div id="logBox"></div>
+    <div id="resultBox"></div>
+
+    <hr>
+    <h3>💻 程式碼</h3>
+    <pre class="code-box" id="codeDisplay"></pre>
+  </div>
+
+  <script>
+    const gridData = [['o','a','a','n'],['e','t','a','e'],['i','h','k','r'],['i','f','l','v']];
+    const directions = [[1,0],[-1,0],[0,1],[0,-1]];
+    let steps = [], current = 0, boardElem, resultShown = false;
+
+    function log(msg) {
+      const box = document.getElementById("logBox");
+      box.innerText += msg + "\n";
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function createBoard() {
+      boardElem = document.getElementById("board");
+      boardElem.innerHTML = "";
+      for (let i = 0; i < gridData.length; i++) {
+        const row = document.createElement("tr");
+        for (let j = 0; j < gridData[0].length; j++) {
+          const cell = document.createElement("td");
+          cell.textContent = gridData[i][j];
+          row.appendChild(cell);
+        }
+        boardElem.appendChild(row);
+      }
+    }
+
+    function resetBoard() {
+      createBoard();
+      steps = [];
+      current = 0;
+      resultShown = false;
+      document.getElementById("resultBox").textContent = "";
+      document.getElementById("resultBox").className = "";
+      document.getElementById("logBox").textContent = "";
+      renderCode(-1);
+    }
+
+    function getCell(i, j) {
+      return boardElem.rows[i].cells[j];
+    }
+
+    function markPath(path, className) {
+      for (const [i, j] of path) {
+        getCell(i, j).classList.add(className);
+      }
+    }
+
+    function renderCode(highlightIndex) {
+      const codeTemplate = [
+        "class Trie:",
+        "    def __init__(self):",
+        "        self.links = {}",
+        "        self.is_end = False",
+        "",
+        "    def add_word(self, word):",
+        "        curr = self",
+        "        for c in word:",
+        "            if c not in curr.links:",
+        "                curr.links[c] = Trie()",
+        "            curr = curr.links[c]",
+        "        curr.is_end = True",
+        "",
+        "def dfs(r, c, node, word):",
+        "    if out of bounds or visited or char not in node:",
+        "        return",
+        "    visited.add((r, c))",
+        "    node = node.links[board[r][c]]",
+        "    word += board[r][c]",
+        "    if node.is_end:",
+        "        res.add(word)",
+        "    for direction in 4 dirs:",
+        "        dfs(...)",
+        "    visited.remove((r, c))"
+      ];
+      const display = document.getElementById("codeDisplay");
+      display.innerHTML = codeTemplate.map((line, idx) => `<div class='${idx === highlightIndex ? "highlight-line" : ""}'>${line}</div>`).join("\n");
+    }
+
+    function startSearch() {
+      resetBoard();
+      const word = document.getElementById("targetWord").value.trim();
+      if (!word) return;
+      for (let i = 0; i < gridData.length; i++) {
+        for (let j = 0; j < gridData[0].length; j++) {
+          dfs(i, j, word, [], new Set());
+        }
+      }
+    }
+
+    function dfs(i, j, word, path, visitedSet) {
+      const m = gridData.length, n = gridData[0].length;
+      if (i < 0 || j < 0 || i >= m || j >= n) return;
+      const key = `${i},${j}`;
+      if (visitedSet.has(key)) return;
+      if (gridData[i][j] !== word[path.length]) return;
+
+      const newPath = [...path, [i, j]];
+      visitedSet.add(key);
+      steps.push({ path: newPath, highlight: 14, word: newPath.map(p => gridData[p[0]][p[1]]).join(""), visited: [...visitedSet] });
+
+      if (newPath.length === word.length) {
+        steps.push({ path: newPath, highlight: 17, word: word, visited: [...visitedSet], found: true });
+        return;
+      }
+
+      for (const [dx, dy] of directions) {
+        steps.push({ path: newPath, highlight: 19, word: newPath.map(p => gridData[p[0]][p[1]]).join(""), visited: [...visitedSet] });
+        dfs(i + dx, j + dy, word, newPath, new Set(visitedSet));
+      }
+
+      steps.push({ path: newPath, highlight: 20, word: newPath.map(p => gridData[p[0]][p[1]]).join(""), visited: [...visitedSet] });
+    }
+
+    function nextStep() {
+      if (current >= steps.length) {
+        if (!resultShown) {
+          document.getElementById("resultBox").textContent = "❌ 沒有找到";
+          document.getElementById("resultBox").className = "fail";
+          resultShown = true;
+        }
+        return;
+      }
+      const { path, highlight, word, visited, found } = steps[current++];
+      markPath(path, found ? 'found' : 'visited');
+      getCell(path[0][0], path[0][1]).classList.add('start');
+      log(`🔠 組字: ${word} ｜📍 路徑: ${path.map(p => `(${p[0]},${p[1]})`).join(" ➜ ")}`);
+      if (found && !resultShown) {
+        document.getElementById("resultBox").textContent = "✅ 找到了！";
+        document.getElementById("resultBox").className = "success";
+        resultShown = true;
+      }
+      renderCode(highlight);
+    }
+
+    createBoard();
+    renderCode(-1);
+  </script>
+</body>
+</html>
+

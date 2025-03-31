@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Linked List Cycle 視覺化</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f5f7fa;
+    }
+    h1 {
+      text-align: center;
+      color: #007acc;
+    }
+    .description {
+      max-width: 800px;
+      margin: 0 auto 2rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .list {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    .node {
+      position: relative;
+      margin: 10px;
+      padding: 10px 16px;
+      background: #3498db;
+      color: white;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+    .node::after {
+      content: "→";
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #444;
+    }
+    .node:last-child::after {
+      display: none;
+    }
+    .pointer {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #e67e22;
+      color: white;
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+    .pointer.fast {
+      background: #e74c3c;
+    }
+    .pointer.slow {
+      background: #2ecc71;
+    }
+    #controls {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0 10px;
+    }
+    #result {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 1rem;
+      color: #c0392b;
+    }
+  
+#codeBox {
+  background: #272822;
+  color: #f8f8f2;
+  text-align: left;
+  padding: 1rem;
+  border-radius: 6px;
+  max-width: 800px;
+  margin: 2rem auto;
+  font-family: monospace;
+}
+.code-line {
+  padding: 2px 0;
+}
+.active-code {
+  background-color: #444;
+}
+</style>
+
+</head>
+<body>
+
+<div class="description">
+  <h2>📌 題目描述：Linked List Cycle</h2>
+  <p>給定一個單向鏈表的 <code>head</code>，判斷該鏈表是否包含 <strong>環 (cycle)</strong>。</p>
+  <ul>
+    <li>如果存在某個節點可以通過不斷跟隨 <code>next</code> 指針回到自身，則該鏈表存在環。</li>
+    <li><strong>注意：</strong><code>pos</code> 用來表示尾部節點連接的位置，但它不作為參數傳遞。</li>
+    <li><strong>返回 true</strong> 代表存在環，<strong>返回 false</strong> 代表無環結構。</li>
+  </ul>
+
+  <h3>🔹 範例</h3>
+  <pre><code>Input: head = [3,2,0,-4]  (pos = 1)
+Output: true
+
+Input: head = [1,2]  (pos = 0)
+Output: true
+
+Input: head = [1]  (pos = -1)
+Output: false</code></pre>
+
+  <h3>🛠 解法：快慢指針法 (Floyd's Tortoise and Hare)</h3>
+  <p>使用 <strong>slow</strong> 與 <strong>fast</strong> 兩個指針：</p>
+  <ul>
+    <li>slow 每次移動 1 步</li>
+    <li>fast 每次移動 2 步</li>
+    <li>如果 fast 到達 null 則無環</li>
+    <li>如果 fast 與 slow 相遇，則有環</li>
+  </ul>
+</div>
+
+<div id="codeBox">
+  <div class="code-line" id="line1">1: while fast and fast.next:</div>
+  <div class="code-line" id="line2">2: &nbsp;&nbsp;slow = slow.next</div>
+  <div class="code-line" id="line3">3: &nbsp;&nbsp;fast = fast.next.next</div>
+  <div class="code-line" id="line4">4: &nbsp;&nbsp;if slow == fast: return True</div>
+  <div class="code-line" id="line5">5: return False</div>
+</div>
+
+  <h1>Floyd 判斷鏈結串列是否有環</h1>
+
+  <div class="description">
+    <p>使用快慢指針 (Floyd's Tortoise and Hare Algorithm)，每次點選「下一步」執行一輪：<br>
+    🐢 慢指針走 1 步，🐇 快指針走 2 步。<br>若相遇代表有環，若 fast 走到 null 則無環。</p>
+  </div>
+
+  <div class="list" id="linkedList"></div>
+  <div id="result"></div>
+
+  <div id="controls">
+    <button onclick="step()">下一步</button>
+    <button onclick="reset()">重置</button>
+  </div>
+
+  <script>
+    let nodes = [3,2,0,-4];
+    let loopTo = 1; // 形成環，最後一個指向 index 1
+    let state = [];
+    let fast = 0, slow = 0;
+    let finished = false;
+
+    function buildState() {
+      state = nodes.map((val, idx) => ({ val, next: idx + 1 }));
+      if (loopTo >= 0 && loopTo < state.length) {
+        state[state.length - 1].next = loopTo;
+      } else {
+        state[state.length - 1].next = null;
+      }
+    }
+
+    function render() {
+      const container = document.getElementById("linkedList");
+      container.innerHTML = "";
+      for (let i = 0; i < state.length; i++) {
+        const node = document.createElement("div");
+        node.className = "node";
+        node.innerText = state[i].val;
+        if (i === fast && !finished) {
+          const f = document.createElement("div");
+          f.className = "pointer fast";
+          f.innerText = "fast";
+          node.appendChild(f);
+        }
+        if (i === slow && !finished) {
+          const s = document.createElement("div");
+          s.className = "pointer slow";
+          s.innerText = "slow";
+          node.appendChild(s);
+        }
+        container.appendChild(node);
+      }
+    }
+
+    
+function highlight(lineId) {
+  document.querySelectorAll('.code-line').forEach(line => line.classList.remove("active-code"));
+  if (lineId) {
+    const el = document.getElementById(lineId);
+    if (el) el.classList.add("active-code");
+  }
+}
+
+function step() {
+      if (finished) return;
+      highlight("line1");
+  if (fast == null || state[fast] == null || state[fast].next == null || state[state[fast].next] == null) {
+        highlight("line5");
+  document.getElementById("result").innerText = "❌ 無環 (No cycle)";
+        finished = true;
+        return;
+      }
+      highlight("line2");
+  slow = state[slow].next;
+      highlight("line3");
+  fast = state[state[fast].next].next;
+
+      highlight("line4");
+  if (slow === fast) {
+        document.getElementById("result").innerText = "✅ 有環 (Cycle detected)";
+        finished = true;
+        render();
+        return;
+      }
+
+      render();
+    }
+
+    function reset() {
+      fast = 0;
+      slow = 0;
+      finished = false;
+      document.getElementById("result").innerText = "";
+      buildState();
+      render();
+    }
+
+    buildState();
+    render();
+  </script>
+</body>
+</html>
