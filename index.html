@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>刷題視覺化｜主控制台</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      display: flex;
+    }
+    aside {
+      width: 220px;
+      background: #2c3e50;
+      color: white;
+      height: 100vh;
+      padding: 1rem;
+      box-sizing: border-box;
+      position: fixed;
+      top: 0;
+      left: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 16px;
+      margin: 1.5rem 0 0.5rem;
+      border-bottom: 1px solid #888;
+      padding-bottom: 0.3rem;
+    }
+    aside a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin: 0.3rem 0 0.3rem 0.5rem;
+      font-size: 14px;
+    }
+    aside a:hover {
+      text-decoration: underline;
+    }
+    main {
+      margin-left: 240px;
+      padding: 2rem;
+      flex: 1;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h3 {
+      font-size: 16px;
+      color: #007acc;
+      margin-bottom: 0.5rem;
+    }
+    .card p {
+      font-size: 14px;
+      color: #666;
+    }
+    a.button {
+      display: inline-block;
+      margin-top: 1rem;
+      background: #007acc;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    a.button:hover {
+      background: #005fa3;
+    }
+    .category {
+      text-align: left;
+      max-width: 900px;
+      margin: 2rem auto 1rem;
+    }
+    .collapsible {
+      cursor: pointer;
+      padding: 0.5rem;
+      font-size: 16px;
+      background-color: #e1ecf4;
+      border: none;
+      outline: none;
+      text-align: left;
+      width: 100%;
+      max-width: 900px;
+      margin: 1rem auto 0;
+    }
+    .collapsible:after {
+      content: '\25BC';
+      float: right;
+    }
+    .collapsible.active:after {
+      content: '\25B2';
+    }
+    .content {
+      display: none;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+
+<aside>
+  <h2>資料結構</h2>
+  <a href="#array" onclick="showTopic('array')">陣列</a>
+  <a href="#matrix" onclick="showTopic('matrix')">矩陣</a>
+  <a href="#linkedlist" onclick="showTopic('linkedlist')">鏈結串列</a>
+  <a href="#stack" onclick="showTopic('stack')">堆疊與佇列</a>
+  <a href="#hash" onclick="showTopic('hash')">雜湊表</a>
+  <a href="#tree" onclick="showTopic('tree')">二元樹</a>
+  <a href="#graph" onclick="showTopic('graph')">圖</a>
+
+  <h2>演算法</h2>
+  <a href="#sorting" onclick="showTopic('sorting')">排序</a>
+  <a href="#binary" onclick="showTopic('binary')">二分搜尋</a>
+  <a href="#two" onclick="showTopic('two')">雙指標</a>
+  <a href="#dfs" onclick="showTopic('dfs')">遞迴與 DFS</a>
+  <a href="#bfs" onclick="showTopic('bfs')">BFS</a>
+  <a href="#dp" onclick="showTopic('dp')">動態規劃</a>
+  <a href="#greedy" onclick="showTopic('greedy')">貪婪法</a>
+
+  <h2>其他問題類型</h2>
+  <a href="#interval" onclick="showTopic('interval')">區間問題</a>
+  <a href="#bit" onclick="showTopic('bit')">位元運算</a>
+  <a href="#string" onclick="showTopic('string')">字串</a>
+</aside>
+
+<main>
+  <h1>✨ 刷題視覺化｜主控制台</h1>
+  
+    <section class="topic-section" data-id="array" style="display:none;">
+      <div class="category">
+        <h2>📂 陣列 (Array)</h2>
+      </div>
+
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>1. Two Sum</h3><p>Easy</p><a href="problems/資料結構/Array/Easy/1.Two_Sum.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>121. Best Time to Buy and Sell Stock</h3><p>Easy</p><a href="problems/資料結構/Array/Easy/121.Best_Time_to_Buy_and_Sell_Stock.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>217. Contains Duplicate</h3><p>Easy</p><a href="problems/資料結構/Array/Easy/217.Contains_Duplicate.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+  
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>11. Container With Most Water</h3><p>Medium</p><a href="problems/資料結構/Array/Medium/11.Container_With_Most_Water.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>15. 3Sum</h3><p>Medium</p><a href="problems/資料結構/Array/Medium/15.3Sum.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>33. Search in Rotated Sorted Array</h3><p>Medium</p><a href="problems/資料結構/Array/Medium/33.Search_in_Rotated_Sorted_Array.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>53. Maximum Subarray</h3><p>Medium</p><a href="problems/資料結構/Array/Medium/53.Maximum_Subarray.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>152. Maximum Product Subarray</h3><p>Medium</p><a href="problems/資料結構/Array/Medium/152.Maximum_Product_Subarray.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>153. Find Minimum in Rotated Sorted Array</h3><p>Medium</p><a href="problems/資料結構/Array/Medium/153.Find_Minimum_in_Rotated_Sorted_Array.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>238. Product of Array Except Self</h3><p>Medium</p><a href="problems/資料結構/Array/Medium/238.Product_of_Array_Except_Self.html" class="button" class="button">啟動模擬器</a></div>
+        </div>
+      </div>   
+
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="topic-section" data-id="matrix" style="display:none;">
+      <div class="category">
+        <h2>📂 矩陣 (Matrix)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>48. Rotate Image</h3><p>Medium</p><a href="problems/資料結構/Matrix/Medium/48.Rotate_Image.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>54. Spiral Matrix</h3><p>Medium</p><a href="problems/資料結構/Matrix/Medium/54.spiral_matrix_visual.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>73. Set Matrix Zeroes</h3><p>Medium</p><a href="problems/資料結構/Matrix/Medium/73.Set_Matrix_Zeroes.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>79. Word Search</h3><p>Medium</p><a href="problems/資料結構/Matrix/Medium/79.Word_Search.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="linkedlist" style="display:none;">
+      <div class="category">
+        <h2>📂 鏈結串列 (Linked List)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>21. Merge Two Sorted List</h3><p>Easy</p><a href="problems/資料結構/Linked_list/Easy/21.Merge_Two_Sorted_List.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>141. Linked List Cycle</h3><p>Easy</p><a href="problems/資料結構/Linked_list/Easy/141.Linked_List_Cycle.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>206. Reverse Linked List</h3><p>Easy</p><a href="problems/資料結構/Linked_list/Easy/206.Reverse_Linked_List.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>876. Middle of the Linked List</h3><p>Easy</p><a href="problems/資料結構/Linked_list/Easy/876.Middle_of_the_Linked_List.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>19. Remove Nth Node From End of List</h3><p>Medium</p><a href="problems/資料結構/Linked_list/Medium/19.Remove_Nth_Node_From_End_of_List.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>143. Reorder List</h3><p>Medium</p><a href="problems/資料結構/Linked_list/Medium/143.Reorder_List.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>23. Merge k Sorted Lists</h3><p>Hard</p><a href="problems/資料結構/Linked_list/Hard/23.Merge_k_Sorted_Lists.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="stack" style="display:none;">
+      <div class="category">
+        <h2>📂 堆疊與佇列 (Stack & Queue)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Medium</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="hash" style="display:none;">
+      <div class="category">
+        <h2>📂 雜湊表 (Hash Table)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Medium</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="tree" style="display:none;">
+      <div class="category">
+        <h2>📂 二元樹 (Binary Tree)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>100. Same Tree</h3><p>Easy</p><a href="problems/資料結構/Tree/Easy/100.same_tree_visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>104. Maximum Depth of Binary Tree</h3><p>Easy</p><a href="problems/資料結構/Tree/Easy/104.max_depth_binary_tree.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>226. Invert Binary Tree</h3><p>Easy</p><a href="problems/資料結構/Tree/Easy/226.invert_binary_tree_visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>572. Subtree of Another Tree</h3><p>Easy</p><a href="problems/資料結構/Tree/Easy/572.Subtree_DFS_Visualizer.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>98. Validate Binary Search Tree</h3><p>Medium</p><a href="problems/資料結構/Tree/Medium/098.Validate_BST_InOrder_Visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>102. Binary Tree Level Order Traversal</h3><p>Medium</p><a href="problems/資料結構/Tree/Medium/102_binary_tree_bfs_visualizer_full.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>105. Construct Binary Tree from Preorder and Inorder Traversal</h3><p>Medium</p><a href="problems/資料結構/Tree/Medium/105.Build_Tree_Visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>208. Implement Trie (Prefix Tree)</h3><p>Medium</p><a href="problems/資料結構/Tree/Medium/208.trie_combined_visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>211. Design Add and Search Words Data Structure</h3><p>Medium</p><a href="problems/資料結構/Tree/Medium/211.Design_Add_and_Search_Words_Data_Structure.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>230. Kth Smallest Element in a BST</h3><p>Medium</p><a href="problems/資料結構/Tree/Medium/230_Kth_Smallest_BST_Visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>235. Lowest Common Ancestor of a Binary Search Tree</h3><p>Medium</p><a href="problems/資料結構/Tree/Medium/235_LCA_BST_Visualizer.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>124. Binary Tree Maximum Path Sum</h3><p>Hard</p><a href="problems/資料結構/Tree/Hard/124.Binary_Tree_Maximum_Path_Sum.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>212. Word Search II</h3><p>Hard</p><a href="problems/資料結構/Tree/Hard/212.Word_Search_II.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>297. Serialize Deserialize BFS Visualizer</h3><p>Hard</p><a href="problems/資料結構/Tree/Hard/297_Serialize_Deserialize_BFS_Visualizer.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="graph" style="display:none;">
+      <div class="category">
+        <h2>📂 圖 (Graph)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>128. Longest Consecutive Sequence</h3><p>Medium</p><a href="problems/資料結構/Graph/Medium/128.Longest_Consecutive_Sequence.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>133. Clone Graph</h3><p>Medium</p><a href="problems/資料結構/Graph/Medium/133.Clone_Graph.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>200. Number of Islands</h3><p>Medium</p><a href="problems/資料結構/Graph/Medium/200.Number_of_Islands.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>207. Course Schedule</h3><p>Medium</p><a href="problems/資料結構/Graph/Medium/207.Course_Schedule.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>417. Pacific Atlantic Water Flow(BFS)</h3><p>Medium</p><a href="problems/資料結構/Graph/Medium/417.Pacific_Atlantic_Water_Flow.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>417. Pacific Atlantic Water Flow(DFS)</h3><p>Medium</p><a href="problems/資料結構/Graph/Medium/417_dfs_step_template.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="sorting" style="display:none;">
+      <div class="category">
+        <h2>📂 排序 (Sorting)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Medium</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="binary" style="display:none;">
+      <div class="category">
+        <h2>📂 二分搜尋 (Binary Search)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Medium</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="two" style="display:none;">
+      <div class="category">
+        <h2>📂 雙指標 (Two Pointers)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Medium</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="dfs" style="display:none;">
+      <div class="category">
+        <h2>📂 遞迴與 DFS</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Medium</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="bfs" style="display:none;">
+      <div class="category">
+        <h2>📂 BFS</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Medium</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="dp" style="display:none;">
+      <div class="category">
+        <h2>📂 動態規劃 (Dynamic Programming)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>70. Climbing Stairs</h3><p>Easy</p><a href="problems/演算法/Dynamic_Programming/Easy/70.Climbing_Stairs.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>55. Jump Game</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/55.JumpGame_Visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>62. Unique Paths</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/62.UniquePaths_Visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>91. Decode Ways</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/91.DecodeWays_Visualizer_Final.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>139. Word Break</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/139.WordBreak_Visualizer_DescClarified.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>198. House Robber</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/198.HouseRobber_Visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>213. House Robber II</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/213.HouseRobberII_Visualizer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>300. Longest Increasing Subsequence</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/300.Longest_Increasing_Subsequence.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>322. Coin Change</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/322.Coin_Change.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>377. Combination Sum IV</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/377.CombSumIV_Visualizer_Full.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>1143. Longest Common Subsequence</h3><p>Medium</p><a href="problems/演算法/Dynamic_Programming/Medium/1143.LCS_Visualizer_FontFixed.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="greedy" style="display:none;">
+      <div class="category">
+        <h2>📂 貪婪法 (Greedy)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Medium</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="interval" style="display:none;">
+      <div class="category">
+        <h2>📂 區間問題 (Interval)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Easy</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>56. Merge Intervals</h3><p>Medium</p><a href="problems/其他/Interval/Medium/56.Merge_Intervals.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>57. Insert Interval</h3><p>Medium</p><a href="problems/其他/Interval/Medium/57.Insert_Interval.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>435. Non-overlapping Intervals</h3><p>Medium</p><a href="problems/其他/Interval/Medium/435.Non_overlapping_Intervals.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="bit" style="display:none;">
+      <div class="category">
+        <h2>📂 位元運算 (Bit Manipulation)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>190. Reverse Bits</h3><p>Easy</p><a href="problems/其他/Binary/Easy/190.Reverse_Bits.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>191. Number of 1 Bits</h3><p>Easy</p><a href="problems/其他/Binary/Easy/191.Number_of_1_Bits.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>268. Missing Number</h3><p>Easy</p><a href="problems/其他/Binary/Easy/268.Missing_Number.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>338. Counting Bits</h3><p>Easy</p><a href="problems/其他/Binary/Easy/338.Counting_Bits.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>371. Sum of Two Integers</h3><p>Medium</p><a href="problems/其他/Binary/Medium/371.Sum_of_Two_Integers.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>建構中</h3><p>Hard</p><a href="#" class="button">建構中</a></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="topic-section" data-id="string" style="display:none;">
+      <div class="category">
+        <h2>📂 字串 (String)</h2>
+      </div>
+      <button class="collapsible">🟢 Easy</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>7. Reverse Integer</h3><p>Easy</p><a href="problems/其他/String/Easy/7.reverse_integer.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>20. Valid Parentheses</h3><p>Easy</p><a href="problems/其他/String/Easy/20.valid_parentheses.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>125. Valid Palindrome</h3><p>Easy</p><a href="problems/其他/String/Easy/125.valid_palindrome.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>242. Valid Anagram</h3><p>Easy</p><a href="problems/其他/String/Easy/242.anagram_visual.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>344. Reverse String</h3><p>Easy</p><a href="problems/其他/String/Easy/344.Reverse_String.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>387. First Unique Character in a String</h3><p>Easy</p><a href="problems/其他/String/Easy/387.first_unique_character.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🟡 Medium</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>3. Longest Substring Without Repeating Characters</h3><p>Medium</p><a href="problems/其他/String/Medium/3.longest_substring_visual.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>5. Longest Palindromic Substring</h3><p>Medium</p><a href="problems/其他/String/Medium/5.longest_palindromic_substring_visual.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>49. Group Anagrams</h3><p>Medium</p><a href="problems/其他/String/Medium/49.group_anagrams_visual.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>271. Encode and Decode Strings (LeetCode Premium)</h3><p>Medium</p><a href="problems/其他/String/Medium/271.encode_decode_visualization.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>424. Longest Repeating Character Replacement</h3><p>Medium</p><a href="problems/其他/String/Medium/424.character_replacement_visual.html" class="button">啟動模擬器</a></div>
+          <div class="card"><h3>647. Palindromic Substrings</h3><p>Medium</p><a href="problems/其他/String/Medium/647.palindromic_substrings_visual.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+      <button class="collapsible">🔴 Hard</button>
+      <div class="content">
+        <div class="grid">
+          <div class="card"><h3>76. Minimum Window Substring</h3><p>Hard</p><a href="problems/其他/String/Hard/76.min_window_substring_visual.html" class="button">啟動模擬器</a></div>
+        </div>
+      </div>
+    </section>
+    
+</main>
+<script>
+  const collapsibles = document.querySelectorAll(".collapsible");
+  collapsibles.forEach(btn => {
+    btn.addEventListener("click", () => {
+      btn.classList.toggle("active");
+      const content = btn.nextElementSibling;
+      content.style.display = content.style.display === "block" ? "none" : "block";
+    });
+  });
+
+  function showTopic(topicId) {
+    document.querySelectorAll('.topic-section').forEach(section => {
+      section.style.display = (section.dataset.id === topicId) ? 'block' : 'none';
+    });
+    document.querySelectorAll('aside a').forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${topicId}`) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  // 預設顯示 array 區塊
+  window.onload = () => {
+    showTopic('array');
+  };
+</script>
+</body>
+</html>
