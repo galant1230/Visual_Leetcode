@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>11. 盛最多水的容器（Container With Most Water）</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', monospace;
+      background: #f9f9f9;
+      padding: 2rem;
+      margin: 0;
+      color: #333;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: left;
+    }
+    h2, h3 {
+      color: #007acc;
+    }
+    pre, code {
+      background: #f0f0f0;
+      padding: 0.5rem;
+      display: block;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    hr {
+      margin: 2rem 0;
+      border: none;
+      border-top: 1px dashed #ccc;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 2rem auto;
+      font-family: monospace;
+      max-width: 600px;
+    }
+    .code-line {
+      padding: 2px 0;
+    }
+    .active-code {
+      background-color: #444;
+    }
+    table {
+      margin: 1rem auto;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .found {
+      background-color: #4caf50;
+      color: white;
+    }
+    input, button {
+      padding: 6px;
+      margin: 0.3rem;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .button-wrap {
+      text-align: center;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>11. 盛最多水的容器（Container With Most Water）</h2>
+
+    <hr><h3>📘 題目描述</h3>
+    <p>給定一個整數陣列 <code>height</code>，找出可以容納最多水的兩條線段所組成的容器，並返回其最大容量。</p>
+
+    <hr><h3>🧪 範例</h3>
+    <pre><code>輸入: height = [1,8,6,2,5,4,8,3,7]
+輸出: 49</code></pre>
+
+    <hr><h3>💡 解法</h3>
+    <pre><code>class Solution:
+    def maxArea(self, height):
+        max_area = 0
+        l, r = 0, len(height) - 1
+        while l < r:
+            area = (r - l) * min(height[l], height[r])
+            max_area = max(max_area, area)
+            if height[l] < height[r]:
+                l += 1
+            else:
+                r -= 1
+        return max_area</code></pre>
+
+    <hr><h3>⏳ 時間與空間複雜度</h3>
+    <ul>
+      <li><strong>時間複雜度：</strong> O(n)</li>
+      <li><strong>空間複雜度：</strong> O(1)</li>
+    </ul>
+
+    <hr><h3>▶️ 視覺化模擬器</h3>
+    <div class="button-wrap">
+      <label>height: <input type="text" id="inputHeights" value="1,8,6,2,5,4,8,3,7"></label>
+      <button onclick="start()">🔃 重設</button>
+      <button onclick="step()">🧭 下一步</button>
+    </div>
+
+    <table id="stepTable">
+      <thead>
+        <tr><th>left</th><th>right</th><th>height[l]</th><th>height[r]</th><th>area</th><th>max_area</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div id="codeBox">
+      <div class="code-line">1: max_area = 0</div>
+      <div class="code-line">2: l, r = 0, len(height) - 1</div>
+      <div class="code-line">3: while l < r:</div>
+      <div class="code-line">4: &nbsp;&nbsp;&nbsp;&nbsp;area = (r - l) * min(height[l], height[r])</div>
+      <div class="code-line">5: &nbsp;&nbsp;&nbsp;&nbsp;max_area = max(max_area, area)</div>
+      <div class="code-line">6: &nbsp;&nbsp;&nbsp;&nbsp;if height[l] < height[r]:</div>
+      <div class="code-line">7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l += 1</div>
+      <div class="code-line">8: &nbsp;&nbsp;&nbsp;&nbsp;else:</div>
+      <div class="code-line">9: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r -= 1</div>
+    </div>
+  </div>
+
+  <script>
+    let height = [];
+    let l = 0, r = 0;
+    let maxArea = 0;
+    let codeLines = [];
+    function highlightCode(n) {
+      codeLines.forEach((el, i) => el.classList.toggle("active-code", i === n - 1));
+    }
+    function start() {
+      height = document.getElementById("inputHeights").value.split(",").map(Number);
+      l = 0;
+      r = height.length - 1;
+      maxArea = 0;
+      codeLines = document.querySelectorAll(".code-line");
+      document.querySelector("#stepTable tbody").innerHTML = "";
+      highlightCode(2);
+    }
+    function step() {
+      if (l >= r) return;
+      highlightCode(4);
+      const hL = height[l], hR = height[r];
+      const area = (r - l) * Math.min(hL, hR);
+      maxArea = Math.max(maxArea, area);
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${l}</td><td>${r}</td><td>${hL}</td><td>${hR}</td><td>${area}</td><td>${maxArea}</td>`;
+      document.querySelector("#stepTable tbody").appendChild(row);
+      highlightCode(hL < hR ? 7 : 9);
+      if (hL < hR) l++;
+      else r--;
+    }
+  </script>
+</body>
+</html>

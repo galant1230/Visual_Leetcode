@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>LeetCode 20 - Valid Parentheses 視覺化教學</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f7fa; padding: 2rem; }
+    h1 { text-align: center; color: #007acc; }
+    .section {
+      max-width: 900px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: monospace;
+    }
+    .code-line { padding: 2px 0; }
+    .active-code { background: #444; color: white; }
+    .tips {
+      background: #fef7dc;
+      padding: 1rem;
+      border-left: 6px solid #f1c40f;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.75rem; text-align: center; }
+    .stack-container {
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      min-height: 50px;
+      background: #ecf0f1;
+      border-radius: 6px;
+    }
+    .stack-item {
+      background: #2ecc71;
+      color: white;
+      padding: 4px 8px;
+      margin: 4px 0;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .btn-group { text-align: center; margin-top: 1rem; }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<h1>LeetCode 20 - Valid Parentheses 視覺化教學</h1>
+
+<div class="section">
+  <h2>📌 題目描述</h2>
+  <p>
+    給定一個只包含 <code>( ) { } [ ]</code> 的字串 <code>s</code>，判斷其是否為有效括號序列。<br>
+    有效條件：每個左括號必須由相同類型的右括號閉合，且必須以正確的順序閉合。
+  </p>
+  <p>
+    <strong>範例：</strong><br>
+    Input: s = "([])" → Output: true<br>
+    Input: s = "(]" → Output: false
+  </p>
+</div>
+
+<div class="section">
+  <h2>🧠 解題思路</h2>
+  <p>
+    利用堆疊（stack）來模擬括號匹配：
+  </p>
+  <ol>
+    <li>遍歷字串中每個字符。</li>
+    <li>若遇到左括號，推入堆疊。</li>
+    <li>若遇到右括號，檢查堆疊是否為空或與堆疊頂部左括號不匹配，則返回 false；否則 pop 掉頂部左括號。</li>
+    <li>遍歷結束後，若堆疊不為空，則返回 false，否則返回 true。</li>
+  </ol>
+  <p>
+    此方法時間複雜度為 O(n)，空間複雜度為 O(n)（最壞情況所有字符皆為左括號）。
+  </p>
+</div>
+
+<div class="section">
+  <h2>🔢 逐步模擬</h2>
+  <div class="btn-group">
+    <label>輸入字串 s：<input type="text" id="inputStr" value="([])"/></label>
+    <button onclick="startSimulation()">開始模擬</button>
+    <button onclick="nextStep()">下一步</button>
+  </div>
+  <p id="simOutput" style="text-align:center; font-weight:bold;">模擬狀態顯示</p>
+  <div>
+    <h3>模擬堆疊 (Stack)：</h3>
+    <div class="stack-container" id="stackContainer"></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>💻 程式碼展示</h2>
+  <pre id="codeBox">
+class Solution:
+    def isValid(self, s: str) -> bool:
+        stack = []  # 使用堆疊來儲存左括號
+        pairs = {   # 括號對應關係
+            '(': ')',
+            '{': '}',
+            '[': ']'
+        }
+
+        for bracket in s:
+            if bracket in pairs:      # 如果是左括號
+                stack.append(bracket)
+            elif len(stack) == 0 or bracket != pairs[stack.pop()]:
+                return False          # 堆疊空或不匹配，返回 False
+        return len(stack) == 0        # 若堆疊空，則所有括號匹配
+  </pre>
+  <div class="tips">
+    💡 小技巧：利用堆疊特性，先入後出可以自然模擬括號匹配；逐步模擬每個字符的處理能幫助你更好理解匹配邏輯。
+  </div>
+</div>
+
+<div class="section">
+  <h2>⏱ 時間與空間複雜度</h2>
+  <table>
+    <tr>
+      <th>分析項目</th>
+      <th>說明</th>
+      <th>Big-O</th>
+    </tr>
+    <tr>
+      <td>時間複雜度</td>
+      <td>遍歷字串每個字符</td>
+      <td>O(n)</td>
+    </tr>
+    <tr>
+      <td>空間複雜度</td>
+      <td>最壞情況堆疊長度等於 n</td>
+      <td>O(n)</td>
+    </tr>
+  </table>
+</div>
+
+<script>
+let s = "";
+let index = 0;
+let stack = [];
+const simOutput = document.getElementById("simOutput");
+const stackContainer = document.getElementById("stackContainer");
+
+function startSimulation() {
+  s = document.getElementById("inputStr").value;
+  index = 0;
+  stack = [];
+  updateStackDisplay();
+  simOutput.innerText = `開始模擬：輸入字串 s = "${s}"`;
+  highlightCode(null);
+}
+
+function nextStep() {
+  if (index >= s.length) {
+    // 模擬結束，判斷是否成功
+    if (stack.length === 0) {
+      simOutput.innerText = "模擬完成：所有括號匹配，結果為 true";
+    } else {
+      simOutput.innerText = "模擬完成：仍有未匹配的左括號，結果為 false";
+    }
+    highlightCode("return");
+    return;
+  }
+  let bracket = s[index];
+  // 高亮程式碼：根據是否為左括號
+  if ("({[".includes(bracket)) {
+    highlightCode("push");
+    stack.push(bracket);
+    simOutput.innerText = `第 ${index+1} 步：讀取 "${bracket}"，為左括號，推入堆疊`;
+  } else {
+    highlightCode("pop");
+    if (stack.length === 0) {
+      simOutput.innerText = `第 ${index+1} 步：讀取 "${bracket}"，但堆疊為空，匹配失敗！`;
+      highlightCode("fail");
+      return;
+    }
+    let last = stack.pop();
+    const pairs = {
+      '(': ')',
+      '{': '}',
+      '[': ']'
+    };
+    if (bracket !== pairs[last]) {
+      simOutput.innerText = `第 ${index+1} 步：讀取 "${bracket}"，與 "${last}" 不匹配，結果為 false`;
+      highlightCode("fail");
+      updateStackDisplay();
+      return;
+    } else {
+      simOutput.innerText = `第 ${index+1} 步：讀取 "${bracket}"，與 "${last}" 匹配，彈出堆疊`;
+    }
+  }
+  index++;
+  updateStackDisplay();
+}
+
+function updateStackDisplay() {
+  stackContainer.innerHTML = "";
+  for (let i = stack.length - 1; i >= 0; i--) {
+    let div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerText = stack[i];
+    stackContainer.appendChild(div);
+  }
+}
+
+function highlightCode(context) {
+  const codeBox = document.getElementById("codeBox");
+  // 將程式碼拆成行，根據 context 高亮不同部分
+  const lines = codeBox.innerText.split("\n");
+  let newHTML = "";
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    let id = "";
+    if (context === "push" && line.includes("if bracket in pairs:")) {
+      id = 'id="hl"';
+    } else if (context === "pop" && line.includes("elif len(stack) == 0 or bracket != pairs[stack.pop()]")) {
+      id = 'id="hl"';
+    } else if (context === "fail" && (line.includes("return False") || line.includes("if len(stack) == 0"))){
+      id = 'id="hl"';
+    } else if (context === "return" && line.includes("return len(stack) == 0")) {
+      id = 'id="hl"';
+    }
+    newHTML += `<div class="code-line" ${id}>${line}</div>`;
+  }
+  codeBox.innerHTML = newHTML;
+}
+</script>
+
+</body>
+</html>

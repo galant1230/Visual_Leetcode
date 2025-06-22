@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Remove Nth Node From End of List 視覺化</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f5f7fa; }
+    h1 { text-align: center; color: #007acc; }
+    .description {
+      max-width: 800px;
+      margin: 1rem auto;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .list {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    .node {
+      position: relative;
+      margin: 8px;
+      padding: 10px 16px;
+      background: #3498db;
+      color: white;
+      font-weight: bold;
+      border-radius: 10px;
+    }
+    .node::after {
+      content: "→";
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #444;
+    }
+    .node:last-child::after {
+      display: none;
+    }
+    .pointer {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .slow { background: #2ecc71; }
+    .fast { background: #e74c3c; }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code { background: #444; color: white; }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 800px;
+      margin: 2rem auto;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+<h1>Remove Nth Node From End 視覺化</h1>
+
+<div class="description">
+  <p>刪除單向鏈結串列中倒數第 <code>n</code> 個節點。使用快慢指針法：<br>讓 fast 先走 n 步，然後 slow 和 fast 一起走直到 fast 到尾端。</p>
+</div>
+
+<div style="text-align:center;">
+  <label>輸入鏈表：<input id="inputList" value="1,2,3,4,5" size="20"></label>
+  <label>n = <input id="inputN" value="2" size="2"></label>
+  <button onclick="start()">開始模擬</button>
+</div>
+
+<div class="list" id="linkedList"></div>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">1: slow = head</div>
+  <div class="code-line" id="c2">2: fast = head</div>
+  <div class="code-line" id="c3">3: for _ in range(n):</div>
+  <div class="code-line" id="c4">4: &nbsp;&nbsp;fast = fast.next</div>
+  <div class="code-line" id="c5">5: if not fast:</div>
+  <div class="code-line" id="c6">6: &nbsp;&nbsp;return head.next</div>
+  <div class="code-line" id="c7">7: while fast.next:</div>
+  <div class="code-line" id="c8">8: &nbsp;&nbsp;fast = fast.next</div>
+  <div class="code-line" id="c9">9: &nbsp;&nbsp;slow = slow.next</div>
+  <div class="code-line" id="c10">10: slow.next = slow.next.next</div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="step()">下一步</button>
+  <button onclick="reset()">重置</button>
+</div>
+
+<script>
+let raw = [1,2,3,4,5];
+let list = [];
+let n = 2;
+let fast = 0, slow = 0;
+let stepCount = 0;
+let phase = 0;
+
+function start() {
+  raw = document.getElementById("inputList").value.split(',').map(Number);
+  n = parseInt(document.getElementById("inputN").value);
+  list = raw.map((val, i) => ({ val: val, next: i + 1 < raw.length ? i + 1 : null }));
+  fast = 0;
+  slow = 0;
+  stepCount = 0;
+  phase = 0;
+  highlight("c1");
+  render();
+}
+
+function reset() {
+  document.getElementById("inputList").value = "1,2,3,4,5";
+  document.getElementById("inputN").value = "2";
+  start();
+}
+
+function step() {
+  if (phase === 0) {
+    if (stepCount === 0) {
+      highlight("c1");
+      stepCount++;
+    } else if (stepCount === 1) {
+      highlight("c2");
+      stepCount++;
+    } else if (stepCount <= n + 1) {
+      highlight("c3");
+      if (fast == null) {
+        highlight("c5");
+        phase = 2;
+        stepCount = 0;
+        return;
+      }
+      highlight("c4");
+      fast = list[fast].next;
+      stepCount++;
+    } else {
+      if (fast == null) {
+        highlight("c5");
+        phase = 2;
+        stepCount = 0;
+        return;
+      }
+      highlight("c5");
+      if (fast == null) {
+        phase = 2;
+        stepCount = 0;
+        return;
+      }
+      highlight("c7");
+      phase = 1;
+    }
+  } else if (phase === 1) {
+    if (fast != null && list[fast].next != null) {
+      highlight("c8");
+      fast = list[fast].next;
+      highlight("c9");
+      slow = list[slow].next;
+    } else {
+      phase = 2;
+      stepCount = 0;
+    }
+  } else if (phase === 2) {
+    highlight("c10");
+    if (list[slow] && list[slow].next != null) {
+      list[slow].next = list[slow].next != null ? list[slow].next = list[slow].next = list[slow].next = list[list[slow].next].next : null;
+    }
+  }
+  render();
+}
+
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(l => l.classList.remove("active-code"));
+  if (id) document.getElementById(id).classList.add("active-code");
+}
+
+function render() {
+  const area = document.getElementById("linkedList");
+  area.innerHTML = "";
+
+  let pointer = 0;
+  let visited = new Set();
+  while (pointer !== null && !visited.has(pointer)) {
+    visited.add(pointer);
+    const el = document.createElement("div");
+    el.className = "node";
+    el.innerText = list[pointer].val;
+    if (pointer === slow) {
+      const p = document.createElement("div");
+      p.className = "pointer slow";
+      p.innerText = "slow";
+      el.appendChild(p);
+    }
+    if (pointer === fast) {
+      const p = document.createElement("div");
+      p.className = "pointer fast";
+      p.innerText = "fast";
+      el.appendChild(p);
+    }
+    area.appendChild(el);
+    pointer = list[pointer].next;
+  }
+}
+
+start();
+</script>
+</body>
+</html>

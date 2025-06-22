@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Merge Two Sorted Lists - 切換視覺化版本</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f5f7fa;
+    }
+    h1 {
+      text-align: center;
+      color: #007acc;
+    }
+    .description, #inputs, #controls {
+      text-align: center;
+      max-width: 800px;
+      margin: 1rem auto;
+    }
+    .list {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem auto;
+      position: relative;
+    }
+    .node {
+      background: #3498db;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      margin: 0 8px;
+      position: relative;
+      font-weight: bold;
+    }
+    .node.dummy {
+      background: gray;
+    }
+    .node::after {
+      content: "→";
+      position: absolute;
+      right: -16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555;
+      font-size: 18px;
+    }
+    .node:last-child::after {
+      content: "";
+    }
+    .ptr-label {
+      position: absolute;
+      top: -20px;
+      font-size: 12px;
+      color: red;
+      font-weight: bold;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    input[type="text"] {
+      padding: 5px;
+      width: 140px;
+      margin: 0 5px;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      text-align: left;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 800px;
+      margin: 2rem auto;
+      font-family: monospace;
+    }
+    .code-line {
+      padding: 2px 0;
+    }
+    .active-code {
+      background-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <h1>Merge Two Sorted Lists 視覺化</h1>
+  <div style="text-align:center;">
+    <button onclick="toggleMode()">🔁 切換模式</button>
+  </div>
+
+  <div id="pyMode">
+
+  <h1>Merge Two Sorted Lists</h1>
+
+  <div class="description">
+    <h2>📌 題目描述</h2>
+    <p>給定兩個<strong>遞增排序</strong>的單向鏈表 <code>list1</code> 和 <code>list2</code>，將它們合併為一個新的<strong>遞增排序</strong>鏈表，並返回合併後的鏈表頭節點。</p>
+    <p><strong>Example:</strong> list1 = [1,2,4], list2 = [1,3,4] → Output: [1,1,2,3,4,4]</p>
+    <p><a href="https://www.youtube.com/watch?v=E5XXiY6QnAs&ab_channel=AlgoEngine" target="_blank">觀看解說影片</a></p>
+  </div>
+
+  <div id="codeBox">
+    <div class="code-line" id="line1">1: while list1 and list2:</div>
+    <div class="code-line" id="line2">2: &nbsp;&nbsp;if list1.val &lt;= list2.val:</div>
+    <div class="code-line" id="line3">3: &nbsp;&nbsp;&nbsp;&nbsp;merged.append(list1)</div>
+    <div class="code-line" id="line4">4: &nbsp;&nbsp;&nbsp;&nbsp;list1 = list1.next</div>
+    <div class="code-line" id="line5">5: &nbsp;&nbsp;else:</div>
+    <div class="code-line" id="line6">6: &nbsp;&nbsp;&nbsp;&nbsp;merged.append(list2)</div>
+    <div class="code-line" id="line7">7: &nbsp;&nbsp;&nbsp;&nbsp;list2 = list2.next</div>
+    <div class="code-line" id="line8">8: merged += list1 or list2</div>
+  </div>
+<div class="complexity" style="max-width: 800px; margin: 0 auto; font-weight: bold; padding-top: 0.5rem;">
+  ⏱ 時間複雜度：O(n + m)<br>
+  🧠 空間複雜度：O(1)
+</div>
+
+
+  <div id="inputs">
+    <label>List1: <input id="input1" type="text" value="1,2,4"></label>
+    <label>List2: <input id="input2" type="text" value="1,3,4"></label>
+    <button onclick="start()">開始模擬</button>
+  </div>
+
+  <div class="list" id="list1"></div>
+  <div class="list" id="list2"></div>
+  <div class="list" id="merged"></div>
+
+  <div id="controls">
+    <button onclick="mergeStep()">下一步合併</button>
+    <button onclick="reset()">重置</button>
+  </div>
+
+  <script>
+    let list1 = [], list2 = [], merged = [];
+    let i = 0, j = 0;
+
+    const elList1 = document.getElementById("list1");
+    const elList2 = document.getElementById("list2");
+    const elMerged = document.getElementById("merged");
+
+    function render() {
+      elList1.innerHTML = list1.slice(i).map(v => `<div class="node">${v}</div>`).join("");
+      elList2.innerHTML = list2.slice(j).map(v => `<div class="node">${v}</div>`).join("");
+      elMerged.innerHTML = merged.map(v => `<div class="node">${v}</div>`).join("");
+    }
+
+    function highlight(lineId) {
+      document.querySelectorAll('.code-line').forEach(line => line.classList.remove("active-code"));
+      if (lineId) document.getElementById(lineId).classList.add("active-code");
+    }
+
+    function start() {
+      const input1 = document.getElementById("input1").value;
+      const input2 = document.getElementById("input2").value;
+      list1 = input1.trim() ? input1.split(',').map(Number) : [];
+      list2 = input2.trim() ? input2.split(',').map(Number) : [];
+      merged = [];
+      i = 0;
+      j = 0;
+      render();
+      highlight(null);
+    }
+
+    function mergeStep() {
+      if (i < list1.length && j < list2.length) {
+        highlight("line1");
+        if (list1[i] <= list2[j]) {
+          highlight("line2");
+          merged.push(list1[i]);
+          highlight("line3");
+          i++;
+          highlight("line4");
+        } else {
+          highlight("line5");
+          merged.push(list2[j]);
+          highlight("line6");
+          j++;
+          highlight("line7");
+        }
+      } else if (i < list1.length) {
+        highlight("line8");
+        merged.push(list1[i]);
+        i++;
+      } else if (j < list2.length) {
+        highlight("line8");
+        merged.push(list2[j]);
+        j++;
+      } else {
+        highlight(null);
+      }
+      render();
+    }
+
+    function reset() {
+      document.getElementById("input1").value = "1,2,4";
+      document.getElementById("input2").value = "1,3,4";
+      start();
+    }
+
+    window.onload = start;
+  </script>
+
+  </div>
+
+  <div id="cppMode" style="display:none;">
+
+  <h1>Merge Two Sorted Lists - C++ 版本視覺化</h1>
+
+  <div class="description">
+    <h2>📌 題目描述</h2>
+    <p>模擬 C++ 合併兩個已排序鏈表的過程，包含 <code>dummy</code> 與 <code>ptr</code> 的位置。</p>
+  </div>
+
+  <div id="codeBox">
+    <div class="code-line" id="line1">ListNode dummy;</div>
+    <div class="code-line" id="line2">ListNode* ptr = &dummy;</div>
+    <div class="code-line" id="line3">while (list1_cpp &amp;&amp; list2_cpp) {</div>
+    <div class="code-line" id="line4">&nbsp;&nbsp;if (list1_cpp-&gt;val &lt;= list2_cpp-&gt;val) {</div>
+    <div class="code-line" id="line5">&nbsp;&nbsp;&nbsp;&nbsp;ptr-&gt;next = list1_cpp;</div>
+    <div class="code-line" id="line6">&nbsp;&nbsp;&nbsp;&nbsp;list1_cpp = list1_cpp-&gt;next;</div>
+    <div class="code-line" id="line7">&nbsp;&nbsp;} else {</div>
+    <div class="code-line" id="line8">&nbsp;&nbsp;&nbsp;&nbsp;ptr-&gt;next = list2_cpp;</div>
+    <div class="code-line" id="line9">&nbsp;&nbsp;&nbsp;&nbsp;list2_cpp = list2_cpp-&gt;next;</div>
+    <div class="code-line" id="line10">&nbsp;&nbsp;}</div>
+    <div class="code-line" id="line11">&nbsp;&nbsp;ptr = ptr-&gt;next;</div>
+    <div class="code-line" id="line12">}</div>
+    <div class="code-line" id="line13">ptr-&gt;next = list1_cpp ? list1_cpp : list2_cpp;</div>
+    <div class="code-line" id="line14">return dummy.next;</div>
+  </div>
+
+  <div id="inputs">
+    <label>List1: <input id="input1" type="text" value="1,2,4"></label>
+    <label>List2: <input id="input2" type="text" value="1,3,4"></label>
+    <button onclick="start_cpp()">開始模擬</button>
+  </div>
+
+  <div class="list" id="list1_cpp"></div>
+  <div class="list" id="list2_cpp"></div>
+  <div class="list" id="merged_cpp"></div>
+
+  <div id="controls">
+    <button onclick="mergeStep_cpp()">下一步合併</button>
+    <button onclick="reset_cpp()">重置</button>
+  </div>
+
+  
+<script>
+(function() {
+
+    let list1_cpp = [], list2_cpp = [], merged_cpp = [];
+    let i = 0, j = 0, k = 0;
+    let dummy = { val: "dummy", next: null };
+    let ptr = dummy;
+
+    const elList1_cpp = document.getElementById("list1_cpp");
+    const elList2_cpp = document.getElementById("list2_cpp");
+    const elMerged_cpp = document.getElementById("merged_cpp");
+
+    function render_cpp() {
+      elList1_cpp.innerHTML = list1_cpp.slice(i).map(v => `<div class="node">${v}</div>`).join("");
+      elList2_cpp.innerHTML = list2_cpp.slice(j).map(v => `<div class="node">${v}</div>`).join("");
+      let merged_cppHTML = merged_cpp.map((v, idx) => {
+        let classes = "node";
+        if (idx === 0) classes += " dummy";
+        let ptrLabel = idx === k ? "<div class='ptr-label'>↓ ptr</div>" : "";
+        return `<div class="${classes}">${ptrLabel}${v}</div>`;
+      }).join("");
+      elMerged_cpp.innerHTML = merged_cppHTML;
+    }
+
+    function highlight_cpp(lineId) {
+      document.querySelectorAll('.code-line').forEach(line => line.classList.remove("active-code"));
+      if (lineId) document.getElementById(lineId).classList.add("active-code");
+    }
+
+    function start_cpp() {
+      const input1 = document.getElementById("input1").value;
+      const input2 = document.getElementById("input2").value;
+      list1_cpp = input1.trim() ? input1.split(',').map(Number) : [];
+      list2_cpp = input2.trim() ? input2.split(',').map(Number) : [];
+      merged_cpp = ["dummy"];
+      i = 0; j = 0; k = 0;
+      highlight_cpp("line1");
+      render_cpp();
+    }
+
+    function mergeStep_cpp() {
+      if (i < list1_cpp.length && j < list2_cpp.length) {
+        highlight_cpp("line3");
+        if (list1_cpp[i] <= list2_cpp[j]) {
+          highlight_cpp("line4");
+          merged_cpp.push(list1_cpp[i]);
+          highlight_cpp("line5");
+          i++;
+          highlight_cpp("line6");
+        } else {
+          highlight_cpp("line7");
+          merged_cpp.push(list2_cpp[j]);
+          highlight_cpp("line8");
+          j++;
+          highlight_cpp("line9");
+        }
+        k++;
+        highlight_cpp("line11");
+      } else if (i < list1_cpp.length) {
+        highlight_cpp("line13");
+        while (i < list1_cpp.length) {
+          merged_cpp.push(list1_cpp[i]);
+          i++;
+          k++;
+        }
+      } else if (j < list2_cpp.length) {
+        highlight_cpp("line13");
+        while (j < list2_cpp.length) {
+          merged_cpp.push(list2_cpp[j]);
+          j++;
+          k++;
+        }
+      } else {
+        highlight_cpp("line14");
+      }
+      render_cpp();
+    }
+
+    function reset_cpp() {
+      document.getElementById("input1").value = "1,2,4";
+      document.getElementById("input2").value = "1,3,4";
+      start_cpp();
+    }
+
+    window.onload = start;
+  
+document.querySelector("#cppMode button[onclick='start_cpp()']").onclick = start_cpp;
+document.querySelector("#cppMode button[onclick='mergeStep_cpp()']").onclick = mergeStep_cpp;
+document.querySelector("#cppMode button[onclick='reset_cpp()']").onclick = reset_cpp;
+})();
+</script>
+
+  </div>
+
+  <script>
+    function toggleMode() {
+      const py = document.getElementById("pyMode");
+      const cpp = document.getElementById("cppMode");
+      if (py.style.display === "none") {
+        py.style.display = "block";
+        cpp.style.display = "none";
+      } else {
+        py.style.display = "none";
+        cpp.style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>

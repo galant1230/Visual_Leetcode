@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>LeetCode 338 - Counting Bits 視覺化</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f5f7fa; }
+    h1 { text-align: center; color: #007acc; }
+    .section {
+      max-width: 800px;
+      margin: 1rem auto;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .bits {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    .bitbox {
+      border: 1px solid #ccc;
+      background: #ecf0f1;
+      margin: 4px;
+      padding: 10px;
+      width: 60px;
+      text-align: center;
+      font-weight: bold;
+      border-radius: 6px;
+      position: relative;
+    }
+    .bitbox.highlight {
+      background: #2ecc71;
+      color: white;
+    }
+    .code-line {
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .active-code {
+      background: #444;
+      color: white;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 800px;
+      margin: 2rem auto;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+<h1>LeetCode 338 - Counting Bits 視覺化</h1>
+
+<div class="section">
+  <p>給定整數 <code>n</code>，對每個數字 <code>i</code> (0 ≤ i ≤ n)，計算其二進位中 <strong>1 的個數</strong>，並返回一個長度為 n+1 的陣列。</p>
+  <div style="text-align:center;">
+    <label>輸入 n：<input id="inputN" type="number" value="5" min="0" /></label>
+    <button onclick="start()">開始模擬</button>
+    <button onclick="step()">下一步</button>
+  </div>
+</div>
+
+<div class="section bits" id="bitContainer"></div>
+<p id="resultText" style="text-align:center;"></p>
+
+<div id="codeBox">
+  <div class="code-line" id="c1">def count_one(i):</div>
+  <div class="code-line" id="c2">    counter = 0</div>
+  <div class="code-line" id="c3">    while i != 0:</div>
+  <div class="code-line" id="c4">        i = i & (i - 1)</div>
+  <div class="code-line" id="c5">        counter += 1</div>
+  <div class="code-line" id="c6">    return counter</div>
+</div>
+
+<script>
+let n = 5;
+let i = 0;
+let result = [];
+
+function start() {
+  n = parseInt(document.getElementById("inputN").value);
+  i = 0;
+  result = [];
+  renderBits();
+  highlight(null);
+  document.getElementById("resultText").innerText = "準備開始！";
+}
+
+function step() {
+  if (i > n) {
+    document.getElementById("resultText").innerText = "✅ 結果: [" + result.join(", ") + "]";
+    return;
+  }
+
+  let count = 0;
+  let temp = i;
+  highlight("c1");
+
+  setTimeout(() => {
+    highlight("c2");
+    setTimeout(() => {
+      while (temp !== 0) {
+        highlight("c3");
+        temp = temp & (temp - 1);
+        count++;
+      }
+      highlight("c6");
+      result.push(count);
+      updateBit(i, count);
+      i++;
+      document.getElementById("resultText").innerText = "目前結果: [" + result.join(", ") + "]";
+    }, 200);
+  }, 200);
+}
+
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(l => l.classList.remove("active-code"));
+  if (id) document.getElementById(id).classList.add("active-code");
+}
+
+function renderBits() {
+  const container = document.getElementById("bitContainer");
+  container.innerHTML = "";
+  for (let j = 0; j <= n; j++) {
+    const div = document.createElement("div");
+    div.className = "bitbox";
+    div.id = "bit-" + j;
+    div.textContent = j;
+    container.appendChild(div);
+  }
+}
+
+function updateBit(index, count) {
+  const box = document.getElementById("bit-" + index);
+  if (box) {
+    box.classList.add("highlight");
+    box.innerText = index + "\\n→ " + count;
+  }
+}
+</script>
+</body>
+</html>

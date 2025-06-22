@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>有效的字母重排（Anagram） 視覺化教學</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f7fa; padding: 2rem; }
+    h1 { text-align: center; color: #007acc; }
+    .section {
+      max-width: 900px; margin: 1rem auto; background: white; 
+      padding: 1.5rem 2rem; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    pre {
+      background: #272822; color: #f8f8f2; padding: 1rem; border-radius: 6px;
+      overflow-x: auto; font-family: monospace;
+    }
+    .code-line { padding: 2px 0; }
+    .active-code { background: #444; color: white; }
+    .tips {
+      background: #fef7dc; padding: 1rem; border-left: 6px solid #f1c40f; 
+      border-radius: 6px; margin-top: 1rem;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.75rem; text-align: center; }
+    .btn-group { text-align: center; margin-top: 1rem; }
+    button { background: #007acc; color: white; padding: 10px 16px; border: none; 
+             border-radius: 6px; cursor: pointer; margin: 0.5rem; }
+    .freq-box { 
+      display: flex; justify-content: center; flex-wrap: wrap; 
+      margin-top: 1rem; font-family: monospace;
+    }
+    .freq-item { 
+      width: 30px; height: 30px; line-height: 30px; border: 1px solid #ccc; 
+      margin: 2px; border-radius: 4px; text-align: center; background: #ecf0f1;
+    }
+  </style>
+</head>
+<body>
+
+<h1>有效的字母重排（Anagram） 視覺化教學</h1>
+
+<div class="section">
+  <h2>問題描述</h2>
+  <p>
+    給定兩個字串 <code>s</code> 和 <code>t</code>，如果 <code>t</code> 是 <code>s</code> 的字母重排（anagram），則回傳 <code>true</code>，否則回傳 <code>false</code>。
+  </p>
+  <p>
+    <strong>範例 1：</strong><br>
+    Input: s = "anagram", t = "nagaram" → Output: true<br>
+    <strong>範例 2：</strong><br>
+    Input: s = "rat", t = "car" → Output: false
+  </p>
+  <p>
+    限制條件：字串長度介於 1 到 5 * 10^4，且僅包含小寫英文字母。
+  </p>
+</div>
+
+<div class="section">
+  <h2>解題思路與互動模擬</h2>
+  <p>
+    一般解法有兩種：
+  </p>
+  <ol>
+    <li><strong>排序法</strong>：將兩字串排序後比較是否相同。<br>
+      時間複雜度 O(n log n)，空間複雜度 O(n)（排序會產生新陣列）。
+    </li>
+    <li><strong>計數法</strong>：利用字母頻率計數，因為只有 26 個字母，固定空間 O(1)，時間複雜度 O(n)。
+    </li>
+  </ol>
+  <p>
+    下面我們以計數法為例，模擬計算兩字串各自的字母頻率，再比較是否相等：
+  </p>
+  <div class="btn-group">
+    <label>字串 s：<input type="text" id="inputS" value="anagram"></label>
+    <label>字串 t：<input type="text" id="inputT" value="nagaram"></label>
+    <button onclick="startSimulation()">開始模擬</button>
+    <button onclick="nextStep()">下一步</button>
+  </div>
+  <p id="simOutput" style="text-align:center; font-weight:bold;">模擬狀態顯示</p>
+  <h3 style="text-align:center;">字母頻率陣列 (固定 26 格)：</h3>
+  <div>
+    <h4>s 的頻率：</h4>
+    <div class="freq-box" id="freqS"></div>
+  </div>
+  <div>
+    <h4>t 的頻率：</h4>
+    <div class="freq-box" id="freqT"></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>程式碼展示</h2>
+  <p>以下展示 Python 與 C 的解法，並以程式碼亮化展示重點：</p>
+  <pre id="codeBox">
+# 方法一：排序法
+class Solution:
+    def isAnagram(self, s: str, t: str) -> bool:
+        return sorted(s) == sorted(t)
+
+# 方法二：計數法 (使用 Counter)
+from collections import Counter
+class Solution:
+    def isAnagram(self, s: str, t: str) -> bool:
+        return Counter(s) == Counter(t)
+
+# C 語言實作 (計數法)
+int isAnagram(char* s, char* t) {
+    if (strlen(s) != strlen(t)) return 0;
+    int count_s[26] = {0};
+    int count_t[26] = {0};
+    for (int i = 0; s[i] != '\0'; i++) {
+        count_s[s[i] - 'a']++;
+        count_t[t[i] - 'a']++;
+    }
+    for (int i = 0; i < 26; i++) {
+        if (count_s[i] != count_t[i]) return 0;
+    }
+    return 1;
+}
+  </pre>
+  <div class="tips">
+    💡 小技巧：計數法利用固定大小的陣列（26）儲存頻率，空間複雜度固定為 O(1)；而排序法較為簡單但時間複雜度較高。
+  </div>
+</div>
+
+<div class="section">
+  <h2>時間與空間複雜度總結</h2>
+  <table>
+    <tr>
+      <th>解法</th>
+      <th>時間複雜度</th>
+      <th>空間複雜度</th>
+    </tr>
+    <tr>
+      <td>排序法</td>
+      <td>O(n log n)</td>
+      <td>O(n)</td>
+    </tr>
+    <tr>
+      <td>計數法</td>
+      <td>O(n)</td>
+      <td>O(1)</td>
+    </tr>
+  </table>
+</div>
+
+<script>
+// 全域變數
+let sStr = "", tStr = "";
+let freqS = new Array(26).fill(0);
+let freqT = new Array(26).fill(0);
+let simStep = 0;
+
+// 更新頻率顯示
+function updateDisplay() {
+  const freqSBox = document.getElementById("freqS");
+  const freqTBox = document.getElementById("freqT");
+  freqSBox.innerHTML = "";
+  freqTBox.innerHTML = "";
+  for (let i = 0; i < 26; i++) {
+    let divS = document.createElement("div");
+    divS.className = "freq-item";
+    divS.innerText = freqS[i];
+    freqSBox.appendChild(divS);
+    let divT = document.createElement("div");
+    divT.className = "freq-item";
+    divT.innerText = freqT[i];
+    freqTBox.appendChild(divT);
+  }
+}
+
+// 開始模擬：初始化頻率陣列
+function startSimulation() {
+  sStr = document.getElementById("inputS").value;
+  tStr = document.getElementById("inputT").value;
+  freqS = new Array(26).fill(0);
+  freqT = new Array(26).fill(0);
+  simStep = 0;
+  updateDisplay();
+  document.getElementById("simOutput").innerText = "開始模擬：頻率陣列初始化完成";
+}
+
+// 下一步：逐步計算頻率（先處理 s，再處理 t）
+function nextStep() {
+  if (simStep < sStr.length) {
+    // 處理 s 字串
+    let c = sStr[simStep];
+    let idx = c.charCodeAt(0) - 'a'.charCodeAt(0);
+    freqS[idx]++;
+    simStep++;
+    document.getElementById("simOutput").innerText = `處理 s[${simStep - 1}] = "${c}"`;
+    updateDisplay();
+  } else if (simStep < sStr.length + tStr.length) {
+    // 處理 t 字串
+    let i = simStep - sStr.length;
+    let c = tStr[i];
+    let idx = c.charCodeAt(0) - 'a'.charCodeAt(0);
+    freqT[idx]++;
+    simStep++;
+    document.getElementById("simOutput").innerText = `處理 t[${i}] = "${c}"`;
+    updateDisplay();
+  } else {
+    // 模擬完成，檢查兩頻率陣列是否相等
+    let isAnagram = true;
+    for (let i = 0; i < 26; i++) {
+      if (freqS[i] !== freqT[i]) {
+        isAnagram = false;
+        break;
+      }
+    }
+    document.getElementById("simOutput").innerText = isAnagram ? 
+      "模擬完成：兩字串為 Anagram！" : "模擬完成：兩字串不為 Anagram！";
+  }
+}
+</script>
+
+</body>
+</html>

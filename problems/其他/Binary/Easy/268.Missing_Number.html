@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>LeetCode 268 - Missing Number 視覺化解法教學</title>
+  <style>
+    body { font-family: sans-serif; background: #f0f2f5; padding: 2rem; }
+    h1 { text-align: center; color: #2c3e50; }
+    .section {
+      max-width: 900px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .array-box {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 1rem 0;
+    }
+    .num {
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      background: #ecf0f1;
+      border: 2px solid #ccc;
+      text-align: center;
+      font-weight: bold;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+    .num.highlight {
+      background: #2ecc71;
+      color: white;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    #codeBox {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: monospace;
+      white-space: pre;
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+    .code-line { padding: 2px 0; }
+    .active-code {
+      background: #444;
+      color: white;
+    }
+    .tips {
+      background: #f9f9a9;
+      border-left: 5px solid #f1c40f;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<h1>LeetCode 268 - Missing Number 視覺化解法教學</h1>
+
+<div class="section">
+  <h2>📌 題目描述</h2>
+  <p>給定長度為 <code>n</code> 的陣列 <code>nums</code>，裡面包含了 <code>0 ~ n</code> 的整數，但缺少其中一個數。請找出這個缺失的數字。</p>
+</div>
+
+<div class="section">
+  <h2>🧠 解題思路</h2>
+  <p>這題可以使用 <strong>數學總和公式</strong> 來快速解答：</p>
+  <ul>
+    <li>完整總和：<code>S = n × (n + 1) / 2</code></li>
+    <li>實際總和：<code>sum(nums)</code></li>
+    <li>缺失數字為：<code>S - sum(nums)</code></li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>🧪 輸入與模擬</h2>
+  <div style="text-align:center;">
+    <label>輸入陣列（用逗號分隔）：<input id="inputNums" value="3,0,1" size="20"></label>
+    <button onclick="start()">開始模擬</button>
+  </div>
+  <div class="array-box" id="arrayBox"></div>
+  <p id="output" style="text-align:center; font-weight:bold;"></p>
+</div>
+
+<div class="section">
+  <h2>💻 程式碼解說（C語言）</h2>
+  <div id="codeBox">
+    <div class="code-line" id="c1">int total = n * (n + 1) / 2;</div>
+    <div class="code-line" id="c2">int input_sum = 0;</div>
+    <div class="code-line" id="c3">for (int i = 0; i &lt; numsSize; i++)</div>
+    <div class="code-line" id="c4">    input_sum += nums[i];</div>
+    <div class="code-line" id="c5">return total - input_sum;</div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>⏳ 時間與空間複雜度</h2>
+  <table>
+    <tr><th>類型</th><th>分析</th><th>Big-O</th></tr>
+    <tr><td>時間複雜度</td><td>遍歷整個陣列一次</td><td>O(n)</td></tr>
+    <tr><td>空間複雜度</td><td>只使用變數，不需額外陣列</td><td>O(1)</td></tr>
+  </table>
+</div>
+
+<div class="section tips">
+  <strong>💡 小技巧：</strong>
+  <ul>
+    <li><code>n(n + 1)/2</code> 是數列 0~n 的總和公式。</li>
+    <li>這方法比排序或哈希更節省空間。</li>
+    <li>這題常見在面試中考邏輯與基本數學。</li>
+  </ul>
+</div>
+
+<script>
+function highlight(id) {
+  document.querySelectorAll(".code-line").forEach(l => l.classList.remove("active-code"));
+  if (id) document.getElementById(id).classList.add("active-code");
+}
+
+function start() {
+  const input = document.getElementById("inputNums").value;
+  const nums = input.split(',').map(Number);
+  const n = nums.length;
+  const arrayBox = document.getElementById("arrayBox");
+  arrayBox.innerHTML = "";
+
+  nums.forEach(num => {
+    const div = document.createElement("div");
+    div.className = "num";
+    div.innerText = num;
+    arrayBox.appendChild(div);
+  });
+
+  highlight("c1");
+  const total = n * (n + 1) / 2;
+
+  highlight("c2");
+  let input_sum = 0;
+  highlight("c3");
+
+  setTimeout(() => {
+    nums.forEach((val, idx) => {
+      setTimeout(() => {
+        highlight("c4");
+        input_sum += val;
+        document.getElementsByClassName("num")[idx].classList.add("highlight");
+      }, idx * 300);
+    });
+
+    setTimeout(() => {
+      highlight("c5");
+      const missing = total - input_sum;
+      document.getElementById("output").innerText = `✅ 缺失的數字是：${missing}`;
+    }, nums.length * 300 + 500);
+  }, 500);
+}
+</script>
+
+</body>
+</html>

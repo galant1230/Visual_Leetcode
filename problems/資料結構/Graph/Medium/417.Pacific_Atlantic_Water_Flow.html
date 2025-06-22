@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>417. 太平洋大西洋水流模擬器 - BFS/DFS 切換</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; padding: 2rem; margin: 0; color: #333; }
+    h2, h3, h4 { color: #007acc; }
+    .container {
+      max-width: 1200px; margin: auto; background: #fff; padding: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    table { margin: 0.5rem auto; border-collapse: collapse; }
+    td {
+      width: 40px; height: 40px; text-align: center; vertical-align: middle;
+      border: 1px solid #ccc; font-size: 14px;
+    }
+    .pacific { background-color: #2196F3; color: white; }
+    .atlantic { background-color: #4CAF50; color: white; }
+    .both { background-color: orange; color: white; }
+    .active-cell { outline: 3px solid red; font-weight: bold; }
+    .visited-true { background-color: #c8e6c9; }
+    #codeBox {
+      background: #272822; color: #f8f8f2; padding: 1rem;
+      border-radius: 6px; margin: 2rem 0; font-family: monospace; white-space: pre-wrap;
+    }
+    .matrix-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .matrix-col {
+      text-align: center;
+    }
+    button {
+      padding: 8px 16px; font-size: 14px; margin: 0.3rem;
+      cursor: pointer; border: none; border-radius: 6px;
+      background: #007acc; color: white;
+    }
+    input { width: 400px; padding: 5px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>💧 417. 太平洋大西洋水流問題（BFS）</h2>
+  <hr>
+  <h3>📘 題目描述</h3>
+  <p>給定一個 m x n 的整數矩陣 heights ，其中 heights[r][c] 表示單元格 (r, c) 的高度。
+  雨水可以從較高或相等高度的單元格流到相鄰的單元格（上下左右），請找出所有能同時流到「太平洋」和「大西洋」的格子。
+  太平洋位於矩陣的左邊與上邊；大西洋位於矩陣的右邊與下邊。</p>
+
+  <h3>🧪 輸入</h3>
+  <input type="text" id="matrixInput" value="[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]">
+  <button onclick="initSim()">🔃 重設</button>
+  <button onclick="stepSim()">🧭 下一步</button>
+  <p id="stepInfo"></p>
+
+  <div class="matrix-row">
+    <div class="matrix-col">
+      <h4>🌊 主矩陣</h4>
+      <div id="grid"></div>
+    </div>
+    <div class="matrix-col">
+      <h4>🌊 太平洋 visited 狀態</h4>
+      <div id="pacificGrid"></div>
+    </div>
+    <div class="matrix-col">
+      <h4>🌊 大西洋 visited 狀態</h4>
+      <div id="atlanticGrid"></div>
+    </div>
+  </div>
+
+  <h3>📄 BFS 模擬程式碼</h3>
+  <div id="codeBox"></div>
+</div>
+
+<script>
+const bfsCode = `from collections import deque
+
+def pacificAtlantic(heights):
+    m, n = len(heights), len(heights[0])
+    pacific = [[False]*n for _ in range(m)]
+    atlantic = [[False]*n for _ in range(m)]
+
+    def bfs(queue, visited):
+        while queue:
+            r, c = queue.popleft()
+            for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:
+                nr, nc = r + dr, c + dc
+                if (0 <= nr < m and 0 <= nc < n and
+                    not visited[nr][nc] and heights[nr][nc] >= heights[r][c]):
+                    visited[nr][nc] = True
+                    queue.append((nr, nc))
+
+    p_queue, a_queue = deque(), deque()
+    for i in range(m):
+        p_queue.append((i, 0))
+        a_queue.append((i, n - 1))
+        pacific[i][0] = True
+        atlantic[i][n - 1] = True
+    for j in range(n):
+        p_queue.append((0, j))
+        a_queue.append((m - 1, j))
+        pacific[0][j] = True
+        atlantic[m - 1][j] = True
+
+    bfs(p_queue, pacific)
+    bfs(a_queue, atlantic)
+
+    return [[i, j] for i in range(m) for j in range(n) if pacific[i][j] and atlantic[i][j]]`;
+
+let matrix, m, n;
+let pacific, atlantic;
+let mode = "bfs";
+let pQueue = [], aQueue = [], queueMode = "pacific";
+const directions = [[1,0],[-1,0],[0,1],[0,-1]];
+
+function renderMatrix(id, mat) {
+  const container = document.getElementById(id);
+  container.innerHTML = "<table>" +
+    mat.map(row => "<tr>" +
+      row.map(cell => `<td class='${cell ? "visited-true" : ""}'>${cell ? "✅" : ""}</td>`).join('') +
+    "</tr>").join('') + "</table>";
+}
+
+function createGrid(active = null) {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "<table>" +
+    matrix.map((row, r) => "<tr>" +
+      row.map((val, c) => {
+        let cls = "";
+        if (pacific[r][c] && atlantic[r][c]) cls = "both";
+        else if (pacific[r][c]) cls = "pacific";
+        else if (atlantic[r][c]) cls = "atlantic";
+        if (active && active[0] === r && active[1] === c) cls += " active-cell";
+        return `<td class='${cls}'>${val}</td>`;
+      }).join('') + "</tr>").join('') + "</table>";
+
+  renderMatrix("pacificGrid", pacific);
+  renderMatrix("atlanticGrid", atlantic);
+  document.getElementById("codeBox").innerText = bfsCode;
+}
+
+function initSim() {
+  matrix = JSON.parse(document.getElementById("matrixInput").value);
+  m = matrix.length;
+  n = matrix[0].length;
+  pacific = Array.from({ length: m }, () => Array(n).fill(false));
+  atlantic = Array.from({ length: m }, () => Array(n).fill(false));
+  pQueue = [], aQueue = [];
+
+  for (let i = 0; i < m; i++) {
+    pQueue.push([i, 0]); pacific[i][0] = true;
+    aQueue.push([i, n - 1]); atlantic[i][n - 1] = true;
+  }
+  for (let j = 0; j < n; j++) {
+    pQueue.push([0, j]); pacific[0][j] = true;
+    aQueue.push([m - 1, j]); atlantic[m - 1][j] = true;
+  }
+  queueMode = "pacific";
+  createGrid();
+  document.getElementById("stepInfo").innerText = "目前為 BFS 模式，請按下『下一步』模擬水流";
+}
+
+function stepBFS(queue, visited) {
+  if (queue.length === 0) return;
+  const [r, c] = queue.shift();
+  document.getElementById("stepInfo").innerText = `模擬：(${r}, ${c})`;  
+  for (const [dr, dc] of directions) {
+    const nr = r + dr, nc = c + dc;
+    if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;
+    if (visited[nr][nc]) continue;
+    if (matrix[nr][nc] < matrix[r][c]) continue;
+    visited[nr][nc] = true;
+    queue.push([nr, nc]);
+  }
+  createGrid([r, c]);
+}
+
+function stepSim() {
+  if (queueMode === "pacific" && pQueue.length > 0) {
+    stepBFS(pQueue, pacific);
+  } else if (queueMode === "atlantic" && aQueue.length > 0) {
+    stepBFS(aQueue, atlantic);
+  }
+  if (pQueue.length === 0 && queueMode === "pacific") {
+    queueMode = "atlantic";
+    document.getElementById("stepInfo").innerText = "🌊 太平洋模擬完成，開始模擬大西洋...";
+  }
+  if (pQueue.length === 0 && aQueue.length === 0) {
+    document.getElementById("stepInfo").innerText = "✅ 模擬完成！";
+  }
+}
+
+function toggleMode() {
+  alert("目前僅支援 BFS 單步模擬，如需 DFS 可再擴充。")
+}
+</script>
+</body>
+</html>
+
